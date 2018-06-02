@@ -15,9 +15,11 @@
 	#define DX_API HRESULT WINAPI
 #endif // !__DX_API__
 
-
-typedef HRESULT(WINAPI* _reset)(LPDIRECT3DDEVICE9 pDevice, D3DPRESENT_PARAMETERS* pPresentationParameters);
 typedef HRESULT(WINAPI* _endScene)(LPDIRECT3DDEVICE9 pDevice);
+typedef HRESULT(WINAPI* _reset)(LPDIRECT3DDEVICE9 pDevice, D3DPRESENT_PARAMETERS* pPresentationParameters);
+typedef HRESULT(WINAPI* _drawIndexedPrimitive)(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITIVETYPE PrimType, INT BaseVertexIndex, UINT MinVertexIndex, UINT NumVertices, UINT startIndex, UINT primCount);
+
+
 
 class D3D9Hook;
 
@@ -28,6 +30,7 @@ public:
 	static _endScene initialOrigEndScene;
 	static _endScene origEndScene;
 	static _reset origReset;
+	static _drawIndexedPrimitive origDrawIndexedPrimitive;
 	//----------------device function address----------//
 
 	static D3D9Hook* getInstance()
@@ -50,6 +53,7 @@ public:
 	DWORD initHookCallback(LPDIRECT3DDEVICE9 pDevice);
 	DWORD endSceneCallback(LPDIRECT3DDEVICE9 pDevice);
 	DWORD resetCallback(LPDIRECT3DDEVICE9 pDevice, D3DPRESENT_PARAMETERS* pPresentationParameters);
+	void drawIndexedPrimitiveCallback(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITIVETYPE PrimType, INT BaseVertexIndex, UINT MinVertexIndex, UINT NumVertices, UINT startIndex, UINT primCount);
 
 private:
 	D3D9Hook() {}

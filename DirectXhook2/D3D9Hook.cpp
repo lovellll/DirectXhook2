@@ -18,6 +18,7 @@ DWORD D3D9Hook::my_endSceneAddress = NULL;
 _endScene D3D9Hook::initialOrigEndScene = nullptr;
 _endScene D3D9Hook::origEndScene = nullptr;
 _reset D3D9Hook::origReset = nullptr;
+_drawIndexedPrimitive D3D9Hook::origDrawIndexedPrimitive = nullptr;
 
 void D3D9Hook::initialize()
 {
@@ -119,7 +120,7 @@ void D3D9Hook::placeHooks()
 	origEndScene = VTableSwap_placeHooks->GetOriginal<_endScene>();
 	//----------------------endScenehook-------------------------//
 	origReset = VTableSwap_placeHooks->HookAdditional<_reset>(16, (BYTE*)&resethk);
-
+	origDrawIndexedPrimitive = VTableSwap_placeHooks->HookAdditional<_drawIndexedPrimitive>(82, (BYTE*)&drawIndexedPrimitivehk);
 }
 
 DWORD D3D9Hook::endSceneCallback(LPDIRECT3DDEVICE9 pDevice)
@@ -147,6 +148,24 @@ DWORD D3D9Hook::resetCallback(LPDIRECT3DDEVICE9 pDevice, D3DPRESENT_PARAMETERS* 
 		this->onLostDevice();
 	}
 	return result;
+}
+
+void D3D9Hook::drawIndexedPrimitiveCallback(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITIVETYPE PrimType, INT BaseVertexIndex, UINT MinVertexIndex, UINT NumVertices, UINT startIndex, UINT primCount)
+{
+#ifdef DEBUG
+	DebugConsole::ConsolePrint("program called our drawIndexedPrimitiveCallback!");
+#endif // DEBUG
+	//just an example
+	if (NumVertices == 24 && primCount == 12)
+	{
+		pDevice->SetRenderState(D3DRS_ZENABLE, false);
+		origDrawIndexedPrimitive(pDevice, PrimType, BaseVertexIndex, MinVertexIndex, NumVertices, startIndex, primCount);
+		pDevice->SetRenderState(D3DRS_ZENABLE, true);
+	}
+	else
+	{
+		origDrawIndexedPrimitive(pDevice, PrimType, BaseVertexIndex, MinVertexIndex, NumVertices, startIndex, primCount);
+	}
 }
 
 void D3D9Hook::onLostDevice(){}

@@ -16,6 +16,11 @@ DX_API resethk(LPDIRECT3DDEVICE9 pDevice, D3DPRESENT_PARAMETERS* pPresentationPa
 	return D3D9Hook::getInstance()->resetCallback(pDevice, pPresentationParameters);
 }
 
+void drawIndexedPrimitivehk(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITIVETYPE PrimType, INT BaseVertexIndex, UINT MinVertexIndex, UINT NumVertices, UINT startIndex, UINT primCount)
+{
+	D3D9Hook::getInstance()->drawIndexedPrimitiveCallback(pDevice, PrimType, BaseVertexIndex, MinVertexIndex, NumVertices, startIndex, primCount);
+}
+
 //-----------------------those are testing DX hooks---------------//
 void enableLighthackDirectional(LPDIRECT3DDEVICE9 pDevice)
 {

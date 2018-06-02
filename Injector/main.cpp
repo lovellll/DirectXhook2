@@ -108,7 +108,11 @@ void inject(HANDLE hProcess)
 int main()
 {
 	wchar_t* binName = L"Chapter8_Direct3DApplication.exe";
-	DWORD procPID = getProcPID(binName);
+	DWORD procPID = NULL;
+	do {
+		procPID = getProcPID(binName);
+		Sleep(20);
+	} while (procPID == NULL); //keep finding that exe
 	HANDLE hProcess = getHandle(procPID);
 	DWORD base = getBase(hProcess);
 	std::cout << "Base is: " << std::hex << base << std::endl;
