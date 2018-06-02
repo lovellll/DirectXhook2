@@ -1,5 +1,9 @@
 #include "D3D9Hook.h"
-#include "Memory.h"
+#include "Hook.h"
+
+#include "Polyhook.hpp"
+#include "capstone.h"
+#pragma comment(lib, "capstone.lib")
 
 LPDIRECT3DDEVICE9 D3D9Hook::gameDevice = nullptr;
 D3D9Hook* D3D9Hook::instance = nullptr;
@@ -23,11 +27,13 @@ void D3D9Hook::initialize()
 #endif // DEBUG
 
 	if (D3D9Hook::endSceneAddress);
-		//D3D9Hook::originalAsm = Hook::hookWithJump(D3D9Hook::endSceneAddress, (DWORD)&endSceneTrampoline);  //store original endScene() asm code
-
-																											//while (!D3D9Hook::hookReadyPre)               //??
-																											//	Sleep(10);
-
+		//D3D9Hook::originalAsm = Hook::hookWithJump(D3D9Hook::endSceneAddress, (DWORD)&endScenehk);  //store original endScene() asm code
+	{
+		std::shared_ptr<PLH::Detour> Detour_Ex(new PLH::Detour);
+		Detour_Ex->SetupHook((BYTE*)D3D9Hook::endSceneAddress, (BYTE*)&endScenehk);
+		Detour_Ex->Hook();
+		origEndScene = Detour_Ex->GetOriginal<_endScene>();
+	}																								
 	D3D9Hook::hookReady = true;
 }
 
@@ -78,25 +84,27 @@ DWORD __stdcall D3D9Hook::reportInitEndScene(LPDIRECT3DDEVICE9 device)
 {
 	return D3D9Hook::getInstance()->initHookCallback(device);
 }
+*/
 
-DWORD D3D9Hook::initHookCallback(LPDIRECT3DDEVICE9 device)
+DWORD D3D9Hook::initHookCallback(LPDIRECT3DDEVICE9 pDevice)
 {
-	D3D9Hook::gameDevice = device;
+	D3D9Hook::gameDevice = pDevice;
 
 #ifdef DEBUG
-	DebugConsole::ConsolePrint("device address is %x\n", device);
+	DebugConsole::ConsolePrint("device address is %x\n", pDevice);
 #endif
 
-	while (D3D9Hook::originalAsm == NULL) {}
-	Hook::unhookWithJump(D3D9Hook::endSceneAddress, originalAsm);
+	//while (D3D9Hook::originalAsm == NULL) {}
+	//Hook::unhookWithJump(D3D9Hook::endSceneAddress, originalAsm);
 
 	//D3DXCreateFont
-	this->placeHooks();
+	//this->placeHooks();
 	//D3D9Hook::hookReadyPre = true;
 
-	return D3D9Hook::endSceneAddress;                   //return endSceneAddress so reportInitEndScene can put it in EAX
+	return D3D9Hook::origEndScene(pDevice);                   //return endSceneAddress so reportInitEndScene can put it in EAX
 }
 
+/*
 void D3D9Hook::placeHooks()
 {
 	//static const DWORD VHHookCount = 2;

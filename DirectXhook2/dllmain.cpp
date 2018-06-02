@@ -29,13 +29,10 @@ BOOL APIENTRY DllMain(HMODULE hModule,DWORD  ul_reason_for_call,LPVOID lpReserve
 
 DWORD WINAPI ATTACHED(LPVOID lpParam)
 {
-
-
 	return 1;
 }
 
 DWORD WINAPI DETACHED(LPVOID lpParam)
 {
-
 	return 1;
 }

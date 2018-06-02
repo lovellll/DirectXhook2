@@ -1,9 +1,5 @@
 #define NOMINMAX
 
-#include <Windows.h>
-#include <stdio.h>
-#include <string>
-#include <vector>
 
 #include "DebugConsole.h"
 //#include "math.hpp"

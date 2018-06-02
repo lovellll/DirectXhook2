@@ -1,11 +1,14 @@
 #pragma once
 
+#include "Memory.h"
+#include<vector>
+
 #include <d3d9.h>
 #include <d3dx9.h>
 #pragma comment(lib, "d3d9.lib")
 #pragma comment(lib, "d3dx9.lib")
 
-#include<vector>
+
 
 #define DX_API HRESULT WINAPI
 
@@ -39,6 +42,7 @@ public:
 	void initialize();
 
 	DWORD __stdcall reportInitEndScene(LPDIRECT3DDEVICE9 device);
+	DWORD initHookCallback(LPDIRECT3DDEVICE9 device);
 
 	void addDrawFrameCallback(_drawFrameCallback cb);
 
@@ -60,7 +64,7 @@ private:
 	static unsigned char* originalAsm;     //putting it in public allows Hook::unhookWithJump to deldete[] it
 
 	DWORD locateOrigEndSceneAddres();
-	DWORD initHookCallback(LPDIRECT3DDEVICE9 device);
+
 	void placeHooks();
 	void onLostDevice();
 

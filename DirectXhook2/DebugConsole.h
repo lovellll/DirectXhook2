@@ -5,6 +5,9 @@
 #include <Windows.h>
 #include <string>
 #include <initializer_list>
+#include <stdio.h>
+#include <vector>
+
 
 namespace DebugConsole
 {
