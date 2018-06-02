@@ -20,6 +20,8 @@ _endScene D3D9Hook::origEndScene = nullptr;
 _reset D3D9Hook::origReset = nullptr;
 _drawIndexedPrimitive D3D9Hook::origDrawIndexedPrimitive = nullptr;
 
+LPDIRECT3DTEXTURE9 D3D9Hook::addedTexture = nullptr;
+
 void D3D9Hook::initialize()
 {
 	while (!GetModuleHandleA("d3d9.dll"))
@@ -103,7 +105,10 @@ DWORD D3D9Hook::initHookCallback(LPDIRECT3DDEVICE9 pDevice)
 
 	Detour_initialEndScene->UnHook();
 	delete Detour_initialEndScene;
+	//-----------------Initialize textures, fonts, etc...-----------------------------//
 	//D3DXCreateFont
+	addedTexture = this->addTexture(L"red.png");
+	//-----------------Initialize textures, fonts, etc...-----------------------------//
 	this->placeHooks();
 	//D3D9Hook::hookReadyPre = true;
 	return D3D9Hook::initialOrigEndScene(pDevice);   
@@ -153,9 +158,9 @@ DWORD D3D9Hook::resetCallback(LPDIRECT3DDEVICE9 pDevice, D3DPRESENT_PARAMETERS* 
 void D3D9Hook::drawIndexedPrimitiveCallback(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITIVETYPE PrimType, INT BaseVertexIndex, UINT MinVertexIndex, UINT NumVertices, UINT startIndex, UINT primCount)
 {
 #ifdef DEBUG
-	DebugConsole::ConsolePrint("program called our drawIndexedPrimitiveCallback!");
+	//DebugConsole::ConsolePrint("program called our drawIndexedPrimitiveCallback!");
 #endif // DEBUG
-	//just an example
+	//----------------------------close Z-buffing---------------------------//
 	if (NumVertices == 24 && primCount == 12)
 	{
 		pDevice->SetRenderState(D3DRS_ZENABLE, false);
@@ -166,6 +171,18 @@ void D3D9Hook::drawIndexedPrimitiveCallback(LPDIRECT3DDEVICE9 pDevice, D3DPRIMIT
 	{
 		origDrawIndexedPrimitive(pDevice, PrimType, BaseVertexIndex, MinVertexIndex, NumVertices, startIndex, primCount);
 	}
+	//----------------------------close Z-buffing---------------------------//
+	//----------------------------change texture---------------------------//
+	pDevice->SetTexture(0, addedTexture);
+	//----------------------------change texture---------------------------//
+}
+
+LPDIRECT3DTEXTURE9 D3D9Hook::addTexture(std::wstring imagePath)
+{
+	LPDIRECT3DTEXTURE9 texture;
+	if(D3DXCreateTextureFromFile(this->gameDevice, imagePath.c_str(), &texture) < 0)
+		return NULL;
+	return texture;
 }
 
 void D3D9Hook::onLostDevice(){}

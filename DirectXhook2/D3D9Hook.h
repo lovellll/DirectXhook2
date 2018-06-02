@@ -55,6 +55,7 @@ public:
 	DWORD resetCallback(LPDIRECT3DDEVICE9 pDevice, D3DPRESENT_PARAMETERS* pPresentationParameters);
 	void drawIndexedPrimitiveCallback(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITIVETYPE PrimType, INT BaseVertexIndex, UINT MinVertexIndex, UINT NumVertices, UINT startIndex, UINT primCount);
 
+	LPDIRECT3DTEXTURE9 addTexture(std::wstring imagePath);
 private:
 	D3D9Hook() {}
 	~D3D9Hook() {}
@@ -65,16 +66,15 @@ private:
 	//-----------------Detour dynamic allocated pointers--------------------
 
 	static LPDIRECT3DDEVICE9 gameDevice;         //to store game's d3d9 device
-
 	static D3D9Hook* instance;
-	static bool hookReadyPre, hookReady;
-
 	static DWORD my_endSceneAddress;
+
+	static bool hookReadyPre, hookReady;
 
 	DWORD locateOrigEndSceneAddres();
 
 	void placeHooks();
-
 	void onLostDevice();
 
+	static LPDIRECT3DTEXTURE9 addedTexture;
 };
