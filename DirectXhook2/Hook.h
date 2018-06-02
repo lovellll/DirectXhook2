@@ -15,3 +15,9 @@
 DX_API initialEndScenehk(LPDIRECT3DDEVICE9 device);
 
 DX_API endScenehk(LPDIRECT3DDEVICE9 pDevice);
+
+DX_API resethk(LPDIRECT3DDEVICE9 pDevice, D3DPRESENT_PARAMETERS * pPresentationParameters);
+
+//-----------------------those are testing DX hooks
+void enableLighthackDirectional(LPDIRECT3DDEVICE9 pDevice);
+//-----------------------those are testing DX hooks---------------//

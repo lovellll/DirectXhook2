@@ -24,8 +24,12 @@ class D3D9Hook;
 class D3D9Hook
 {
 public:
+	//----------------device function address----------//
 	static _endScene initialOrigEndScene;
 	static _endScene origEndScene;
+	static _reset origReset;
+	//----------------device function address----------//
+
 	static D3D9Hook* getInstance()
 	{
 		if (!D3D9Hook::instance)
@@ -45,6 +49,7 @@ public:
 
 	DWORD initHookCallback(LPDIRECT3DDEVICE9 pDevice);
 	DWORD endSceneCallback(LPDIRECT3DDEVICE9 pDevice);
+	DWORD resetCallback(LPDIRECT3DDEVICE9 pDevice, D3DPRESENT_PARAMETERS* pPresentationParameters);
 
 private:
 	D3D9Hook() {}

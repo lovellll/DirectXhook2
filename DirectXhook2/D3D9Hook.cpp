@@ -17,6 +17,7 @@ DWORD D3D9Hook::my_endSceneAddress = NULL;
 
 _endScene D3D9Hook::initialOrigEndScene = nullptr;
 _endScene D3D9Hook::origEndScene = nullptr;
+_reset D3D9Hook::origReset = nullptr;
 
 void D3D9Hook::initialize()
 {
@@ -99,8 +100,6 @@ DWORD D3D9Hook::initHookCallback(LPDIRECT3DDEVICE9 pDevice)
 	DebugConsole::ConsolePrint("device address is %x\n", pDevice);
 #endif
 
-	//while (D3D9Hook::originalAsm == NULL) {}
-	//Hook::unhookWithJump(D3D9Hook::my_endSceneAddress, originalAsm);
 	Detour_initialEndScene->UnHook();
 	delete Detour_initialEndScene;
 	//D3DXCreateFont
@@ -119,19 +118,37 @@ void D3D9Hook::placeHooks()
 	VTableSwap_placeHooks->Hook();
 	origEndScene = VTableSwap_placeHooks->GetOriginal<_endScene>();
 	//----------------------endScenehook-------------------------//
+	origReset = VTableSwap_placeHooks->HookAdditional<_reset>(16, (BYTE*)&resethk);
 
 }
 
 DWORD D3D9Hook::endSceneCallback(LPDIRECT3DDEVICE9 pDevice)
 {
-	//put your own functions here
 #ifdef DEBUG
-	DebugConsole::ConsolePrint("program called our endSceneCallback!");
+	//DebugConsole::ConsolePrint("program called our endSceneCallback!");
 #endif // DEBUG
-
+	//put your own functions here
+	enableLighthackDirectional(pDevice);
 
 	return origEndScene(pDevice);
 }
+
+DWORD D3D9Hook::resetCallback(LPDIRECT3DDEVICE9 pDevice, D3DPRESENT_PARAMETERS* pPresentationParameters)
+{
+#ifdef DEBUG
+	DebugConsole::ConsolePrint("program called our resetCallback!");
+#endif // DEBUG
+
+	auto result = origReset(pDevice, pPresentationParameters);
+	if (result == D3D_OK)
+	{
+		//put your own functions here
+		this->onLostDevice();
+	}
+	return result;
+}
+
+void D3D9Hook::onLostDevice(){}
 
 /*
 void D3D9Hook::placeHooks()
