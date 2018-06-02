@@ -24,8 +24,8 @@ class D3D9Hook;
 class D3D9Hook
 {
 public:
+	static _endScene initialOrigEndScene;
 	static _endScene origEndScene;
-
 	static D3D9Hook* getInstance()
 	{
 		if (!D3D9Hook::instance)
@@ -43,14 +43,16 @@ public:
 	}
 	void initialize();
 
-	DWORD initHookCallback(LPDIRECT3DDEVICE9 device);
+	DWORD initHookCallback(LPDIRECT3DDEVICE9 pDevice);
+	DWORD endSceneCallback(LPDIRECT3DDEVICE9 pDevice);
 
 private:
 	D3D9Hook() {}
 	~D3D9Hook() {}
 
 	//-----------------Detour dynamic allocated pointers--------------------
-	static PLH::Detour* Detour_endScene;
+	static PLH::Detour* Detour_initialEndScene;
+	static PLH::VTableSwap* VTableSwap_placeHooks;
 	//-----------------Detour dynamic allocated pointers--------------------
 
 	static LPDIRECT3DDEVICE9 gameDevice;         //to store game's d3d9 device
@@ -59,8 +61,6 @@ private:
 	static bool hookReadyPre, hookReady;
 
 	static DWORD my_endSceneAddress;
-
-	static unsigned char* originalAsm;     //putting it in public allows Hook::unhookWithJump to deldete[] it
 
 	DWORD locateOrigEndSceneAddres();
 

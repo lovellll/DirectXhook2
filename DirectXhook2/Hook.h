@@ -12,4 +12,6 @@
 
 #include "Polyhook.h"
 
-DX_API endScenehk(LPDIRECT3DDEVICE9 device);
+DX_API initialEndScenehk(LPDIRECT3DDEVICE9 device);
+
+DX_API endScenehk(LPDIRECT3DDEVICE9 pDevice);

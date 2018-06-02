@@ -4,7 +4,8 @@
 #include "Memory.h"
 
 //-----------------Detour dynamic allocated pointers--------------------
-PLH::Detour* D3D9Hook::Detour_endScene = nullptr;
+PLH::Detour* D3D9Hook::Detour_initialEndScene = nullptr;
+PLH::VTableSwap* D3D9Hook::VTableSwap_placeHooks = nullptr;
 //-----------------Detour dynamic allocated pointers--------------------
 
 LPDIRECT3DDEVICE9 D3D9Hook::gameDevice = nullptr;
@@ -13,10 +14,9 @@ bool D3D9Hook::hookReadyPre = false;
 bool D3D9Hook::hookReady = false;
 
 DWORD D3D9Hook::my_endSceneAddress = NULL;
-unsigned char* D3D9Hook::originalAsm = nullptr;
 
+_endScene D3D9Hook::initialOrigEndScene = nullptr;
 _endScene D3D9Hook::origEndScene = nullptr;
-
 
 void D3D9Hook::initialize()
 {
@@ -29,20 +29,20 @@ void D3D9Hook::initialize()
 #endif // DEBUG
 
 	if (D3D9Hook::my_endSceneAddress)
-		//D3D9Hook::originalAsm = Hook::hookWithJump(D3D9Hook::my_endSceneAddress, (DWORD)&endScenehk);  //store original endScene() asm code
+		//D3D9Hook::originalAsm = Hook::hookWithJump(D3D9Hook::my_endSceneAddress, (DWORD)&initialEndScenehk);  //store original endScene() asm code
 	{
-		Detour_endScene = new PLH::Detour;
-		Detour_endScene->SetupHook((BYTE*)D3D9Hook::my_endSceneAddress, (BYTE*)&endScenehk);
+		Detour_initialEndScene = new PLH::Detour;
+		Detour_initialEndScene->SetupHook((BYTE*)D3D9Hook::my_endSceneAddress, (BYTE*)&initialEndScenehk);
 
 #ifdef DEBUG
-		DebugConsole::ConsolePrint("&endScenehk is %x\n", &endScenehk);
+		DebugConsole::ConsolePrint("&initialEndScenehk is %x\n", &initialEndScenehk);
 #endif // DEBUG
 
-		Detour_endScene->Hook();
-		//origEndScene = Detour_endScene->GetOriginal<_endScene>();
-		origEndScene = (_endScene)D3D9Hook::my_endSceneAddress;
+		Detour_initialEndScene->Hook();
+		//initialOrigEndScene = Detour_initialEndScene->GetOriginal<_endScene>();
+		initialOrigEndScene = (_endScene)D3D9Hook::my_endSceneAddress;
 #ifdef DEBUG
-		DebugConsole::ConsolePrint("origEndScene is %x\n", origEndScene);
+		DebugConsole::ConsolePrint("initialOrigEndScene is %x\n", initialOrigEndScene);
 #endif // DEBUG
 
 	}																								
@@ -91,13 +91,6 @@ DWORD D3D9Hook::locateOrigEndSceneAddres()
 
 }
 
-/*
-DWORD __stdcall D3D9Hook::reportInitEndScene(LPDIRECT3DDEVICE9 device)
-{
-	return D3D9Hook::getInstance()->initHookCallback(device);
-}
-*/
-
 DWORD D3D9Hook::initHookCallback(LPDIRECT3DDEVICE9 pDevice)
 {
 	D3D9Hook::gameDevice = pDevice;
@@ -108,12 +101,36 @@ DWORD D3D9Hook::initHookCallback(LPDIRECT3DDEVICE9 pDevice)
 
 	//while (D3D9Hook::originalAsm == NULL) {}
 	//Hook::unhookWithJump(D3D9Hook::my_endSceneAddress, originalAsm);
-	Detour_endScene->UnHook();
-	delete Detour_endScene;
+	Detour_initialEndScene->UnHook();
+	delete Detour_initialEndScene;
 	//D3DXCreateFont
-	//this->placeHooks();
+	this->placeHooks();
 	//D3D9Hook::hookReadyPre = true;
-	return D3D9Hook::origEndScene(pDevice);   //problem here
+	return D3D9Hook::initialOrigEndScene(pDevice);   
+}
+
+void D3D9Hook::placeHooks()
+{
+	//can place your hooks here
+	//D3D9Hook::gameDevice is the class
+	//----------------------endScenehook-------------------------//
+	VTableSwap_placeHooks = new PLH::VTableSwap;
+	VTableSwap_placeHooks->SetupHook((BYTE*)gameDevice, 42, (BYTE*)&endScenehk);
+	VTableSwap_placeHooks->Hook();
+	origEndScene = VTableSwap_placeHooks->GetOriginal<_endScene>();
+	//----------------------endScenehook-------------------------//
+
+}
+
+DWORD D3D9Hook::endSceneCallback(LPDIRECT3DDEVICE9 pDevice)
+{
+	//put your own functions here
+#ifdef DEBUG
+	DebugConsole::ConsolePrint("program called our endSceneCallback!");
+#endif // DEBUG
+
+
+	return origEndScene(pDevice);
 }
 
 /*
@@ -124,7 +141,7 @@ void D3D9Hook::placeHooks()
 	static VFHookInfo VFHooks[VHHookCount] =
 	{
 		//VFHookInfo(16, (DWORD)&myReset, (DWORD*)&D3D9Hook::origReset),
-		VFHookInfo(42, (DWORD)&myEndScene, (DWORD*)&D3D9Hook::origEndScene)
+		VFHookInfo(42, (DWORD)&myEndScene, (DWORD*)&D3D9Hook::initialOrigEndScene)
 	};
 
 	for (int hook = 0; hook < VHHookCount; hook++)
@@ -162,7 +179,7 @@ DX_API D3D9Hook::endSceneHookCallback(LPDIRECT3DDEVICE9 pDevice)
 #endif // DEBUG
 
 
-	auto result = origEndScene(pDevice);
+	auto result = initialOrigEndScene(pDevice);
 	this->placeHooks();      //Ë³Ðò£¿
 	return result;
 }
