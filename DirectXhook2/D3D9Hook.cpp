@@ -129,6 +129,7 @@ DWORD D3D9Hook::endSceneCallback(LPDIRECT3DDEVICE9 pDevice)
 #endif // DEBUG
 	//put your own functions here
 	enableLighthackDirectional(pDevice);
+	enableLightHackAmbient(pDevice);
 
 	return origEndScene(pDevice);
 }

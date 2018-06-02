@@ -20,4 +20,5 @@ DX_API resethk(LPDIRECT3DDEVICE9 pDevice, D3DPRESENT_PARAMETERS * pPresentationP
 
 //-----------------------those are testing DX hooks
 void enableLighthackDirectional(LPDIRECT3DDEVICE9 pDevice);
+void enableLightHackAmbient(LPDIRECT3DDEVICE9 pDevice);
 //-----------------------those are testing DX hooks---------------//

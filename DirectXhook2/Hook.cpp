@@ -28,4 +28,9 @@ void enableLighthackDirectional(LPDIRECT3DDEVICE9 pDevice)
 	pDevice->SetLight(0, &light);
 	pDevice->LightEnable(0, true);
 }
+
+void enableLightHackAmbient(LPDIRECT3DDEVICE9 pDevice)
+{
+	pDevice->SetRenderState(D3DRS_AMBIENT, D3DCOLOR_XRGB(100, 100, 100));
+}
 //-----------------------those are testing DX hooks---------------//
