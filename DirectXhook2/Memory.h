@@ -1,7 +1,8 @@
 #pragma once
 #include <Windows.h>
 #include <vector>
-#include "offsets.h"
+
+
 
 namespace Memory
 {

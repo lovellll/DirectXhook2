@@ -1,16 +1,18 @@
 #pragma once
 
-#include "Memory.h"
 #include<vector>
-
+//----------------d3d9 SDK--------------
 #include <d3d9.h>
 #include <d3dx9.h>
 #pragma comment(lib, "d3d9.lib")
 #pragma comment(lib, "d3dx9.lib")
+//----------------d3d9 SDK--------------
 
+#ifndef __DX_API__
+	#define __DX_API__
+	#define DX_API HRESULT WINAPI
+#endif // !__DX_API__
 
-
-#define DX_API HRESULT WINAPI
 
 typedef HRESULT(WINAPI* _reset)(LPDIRECT3DDEVICE9 pDevice, D3DPRESENT_PARAMETERS* pPresentationParameters);
 typedef HRESULT(WINAPI* _endScene)(LPDIRECT3DDEVICE9 pDevice);
@@ -59,7 +61,7 @@ private:
 	static D3D9Hook* instance;
 	static bool hookReadyPre, hookReady;
 
-	static DWORD endSceneAddress;
+	static DWORD my_endSceneAddress;
 
 	static unsigned char* originalAsm;     //putting it in public allows Hook::unhookWithJump to deldete[] it
 

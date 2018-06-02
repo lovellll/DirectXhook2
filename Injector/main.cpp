@@ -88,7 +88,7 @@ DWORD getBase(HANDLE hProcess)
 void inject(HANDLE hProcess)
 {
 	//wirte dll name to target memory
-	wchar_t* dllName = L"injectDLL.dll";
+	wchar_t* dllName = L"DirectXhook2.dll";
 	int namelen = wcslen(dllName) + 1;
 	LPVOID remoteStringAdr = VirtualAllocEx(hProcess, NULL, namelen * 2, MEM_COMMIT, PAGE_EXECUTE);
 	WriteProcessMemory(hProcess, remoteStringAdr, dllName, namelen * 2, NULL);

@@ -1,16 +1,18 @@
 #include "D3D9Hook.h"
 #include "Hook.h"
+#include "DebugConsole.h"
+#include "Memory.h"
 
-#include "Polyhook.hpp"
-#include "capstone.h"
-#pragma comment(lib, "capstone.lib")
+//-----------------Detour dynamic allocated pointers--------------------
+PLH::Detour* Detour_endScene = nullptr;
+//-----------------Detour dynamic allocated pointers--------------------
 
 LPDIRECT3DDEVICE9 D3D9Hook::gameDevice = nullptr;
 D3D9Hook* D3D9Hook::instance = nullptr;
 bool D3D9Hook::hookReadyPre = false;
 bool D3D9Hook::hookReady = false;
 
-DWORD D3D9Hook::endSceneAddress = NULL;
+DWORD D3D9Hook::my_endSceneAddress = NULL;
 unsigned char* D3D9Hook::originalAsm = nullptr;
 
 _endScene D3D9Hook::origEndScene = nullptr;
@@ -21,18 +23,28 @@ void D3D9Hook::initialize()
 	while (!GetModuleHandleA("d3d9.dll"))
 		Sleep(10);
 
-	D3D9Hook::endSceneAddress = this->locateOrigEndSceneAddres();
+	D3D9Hook::my_endSceneAddress = this->locateOrigEndSceneAddres();
 #ifdef DEBUG
-	DebugConsole::ConsolePrint("endSceneAddress is %x\n", D3D9Hook::endSceneAddress);
+	DebugConsole::ConsolePrint("endSceneAddress is %x\n", D3D9Hook::my_endSceneAddress);
 #endif // DEBUG
 
-	if (D3D9Hook::endSceneAddress);
-		//D3D9Hook::originalAsm = Hook::hookWithJump(D3D9Hook::endSceneAddress, (DWORD)&endScenehk);  //store original endScene() asm code
+	if (D3D9Hook::my_endSceneAddress)
+		//D3D9Hook::originalAsm = Hook::hookWithJump(D3D9Hook::my_endSceneAddress, (DWORD)&endScenehk);  //store original endScene() asm code
 	{
-		std::shared_ptr<PLH::Detour> Detour_Ex(new PLH::Detour);
-		Detour_Ex->SetupHook((BYTE*)D3D9Hook::endSceneAddress, (BYTE*)&endScenehk);
-		Detour_Ex->Hook();
-		origEndScene = Detour_Ex->GetOriginal<_endScene>();
+		Detour_endScene = new PLH::Detour;
+		Detour_endScene->SetupHook((BYTE*)D3D9Hook::my_endSceneAddress, (BYTE*)&endScenehk);
+
+#ifdef DEBUG
+		DebugConsole::ConsolePrint("&endScenehk is %x\n", &endScenehk);
+#endif // DEBUG
+
+		Detour_endScene->Hook();
+		//origEndScene = Detour_endScene->GetOriginal<_endScene>();
+		origEndScene = (_endScene)D3D9Hook::my_endSceneAddress;
+#ifdef DEBUG
+		DebugConsole::ConsolePrint("origEndScene is %x\n", origEndScene);
+#endif // DEBUG
+
 	}																								
 	D3D9Hook::hookReady = true;
 }
@@ -71,11 +83,11 @@ DWORD D3D9Hook::locateOrigEndSceneAddres()
 	if (FAILED(res))
 		return 0;
 
-	endSceneAddress = Memory::getVF((DWORD)pd3dDevice, 42);
+	my_endSceneAddress = Memory::getVF((DWORD)pd3dDevice, 42);
 	pD3D->Release();
 	pd3dDevice->Release();
 	DestroyWindow(hWnd);//release our d3d9 Device
-	return endSceneAddress;
+	return my_endSceneAddress;
 
 }
 
@@ -95,13 +107,13 @@ DWORD D3D9Hook::initHookCallback(LPDIRECT3DDEVICE9 pDevice)
 #endif
 
 	//while (D3D9Hook::originalAsm == NULL) {}
-	//Hook::unhookWithJump(D3D9Hook::endSceneAddress, originalAsm);
-
+	//Hook::unhookWithJump(D3D9Hook::my_endSceneAddress, originalAsm);
+	Detour_endScene->UnHook();
+	delete Detour_endScene;
 	//D3DXCreateFont
 	//this->placeHooks();
 	//D3D9Hook::hookReadyPre = true;
-
-	return D3D9Hook::origEndScene(pDevice);                   //return endSceneAddress so reportInitEndScene can put it in EAX
+	return D3D9Hook::origEndScene(pDevice);   //problem here
 }
 
 /*

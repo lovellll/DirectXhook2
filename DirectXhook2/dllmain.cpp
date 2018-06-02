@@ -1,5 +1,9 @@
 #include <Windows.h>
 #include <iostream>
+#include "offsets.h"
+#include "D3D9Hook.h"
+#include "DebugConsole.h"
+
 
 DWORD WINAPI ATTACHED(LPVOID lpParam);
 DWORD WINAPI DETACHED(LPVOID lpParam);
@@ -29,6 +33,12 @@ BOOL APIENTRY DllMain(HMODULE hModule,DWORD  ul_reason_for_call,LPVOID lpReserve
 
 DWORD WINAPI ATTACHED(LPVOID lpParam)
 {
+#ifdef DEBUG
+	DebugConsole::AttachConsole();
+	DebugConsole::ConsolePrint("DLL injected!\n");
+#endif
+	baseAddr = (DWORD)GetModuleHandle(NULL);
+	D3D9Hook::getInstance()->initialize();
 	return 1;
 }
 

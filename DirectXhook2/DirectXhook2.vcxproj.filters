@@ -19,6 +19,9 @@
     <Filter Include="头文件\Utils">
       <UniqueIdentifier>{dd7e11a2-7cde-4558-959a-9f3101e54e41}</UniqueIdentifier>
     </Filter>
+    <Filter Include="头文件\Polyhook">
+      <UniqueIdentifier>{80c92473-86b0-4cc0-8596-1138e34e76f1}</UniqueIdentifier>
+    </Filter>
     <Filter Include="源文件\Main">
       <UniqueIdentifier>{92d61848-4e18-4303-994c-e5be236a18f7}</UniqueIdentifier>
     </Filter>
@@ -58,6 +61,9 @@
     </ClInclude>
     <ClInclude Include="offsets.h">
       <Filter>头文件\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Game Hack Tools\CODE\PolyHook-master\PolyHook\PolyHook.hpp">
+      <Filter>头文件\Polyhook</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

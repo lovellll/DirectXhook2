@@ -1,5 +1,5 @@
 #include "Memory.h"
-
+#include "offsets.h"
 
 DWORD Memory::getPointAddress(DWORD weapon_baseOffset, const std::vector<DWORD> &offsets)
 {

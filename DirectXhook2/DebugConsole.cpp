@@ -1,6 +1,5 @@
 #define NOMINMAX
 
-
 #include "DebugConsole.h"
 //#include "math.hpp"
 
