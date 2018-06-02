@@ -21,6 +21,7 @@ BOOL APIENTRY DllMain(HMODULE hModule,DWORD  ul_reason_for_call,LPVOID lpReserve
 	case DLL_PROCESS_DETACH:
 		auto thread1 = CreateThread(NULL, 0, &DETACHED, NULL, 0, NULL);
 		CloseHandle(thread1);
+
 		break;
 	}
 	return TRUE;
