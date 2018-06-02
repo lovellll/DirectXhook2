@@ -4,7 +4,7 @@
 #include "Memory.h"
 
 //-----------------Detour dynamic allocated pointers--------------------
-PLH::Detour* Detour_endScene = nullptr;
+PLH::Detour* D3D9Hook::Detour_endScene = nullptr;
 //-----------------Detour dynamic allocated pointers--------------------
 
 LPDIRECT3DDEVICE9 D3D9Hook::gameDevice = nullptr;
@@ -16,7 +16,7 @@ DWORD D3D9Hook::my_endSceneAddress = NULL;
 unsigned char* D3D9Hook::originalAsm = nullptr;
 
 _endScene D3D9Hook::origEndScene = nullptr;
-_reset D3D9Hook::origReset = nullptr;
+
 
 void D3D9Hook::initialize()
 {

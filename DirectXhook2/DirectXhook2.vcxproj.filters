@@ -25,6 +25,9 @@
     <Filter Include="源文件\Main">
       <UniqueIdentifier>{92d61848-4e18-4303-994c-e5be236a18f7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="源文件\Polyhook">
+      <UniqueIdentifier>{8721ffa6-9636-4ee6-92bc-3c0b2d56189c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="D3D9Hook.cpp">
@@ -45,6 +48,9 @@
     <ClCompile Include="offsets.cpp">
       <Filter>源文件\Utils</Filter>
     </ClCompile>
+    <ClCompile Include="Polyhook.cpp">
+      <Filter>源文件\Polyhook</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="D3D9Hook.h">
@@ -62,7 +68,7 @@
     <ClInclude Include="offsets.h">
       <Filter>头文件\Utils</Filter>
     </ClInclude>
-    <ClInclude Include="D:\Game Hack Tools\CODE\PolyHook-master\PolyHook\PolyHook.hpp">
+    <ClInclude Include="d:\Game Hack Tools\CODE\PolyHook-master\PolyHook\PolyHook.h">
       <Filter>头文件\Polyhook</Filter>
     </ClInclude>
   </ItemGroup>

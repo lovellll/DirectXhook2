@@ -1,6 +1,8 @@
 #pragma once
 
 #include<vector>
+#include "Polyhook.h"
+
 //----------------d3d9 SDK--------------
 #include <d3d9.h>
 #include <d3dx9.h>
@@ -18,12 +20,10 @@ typedef HRESULT(WINAPI* _reset)(LPDIRECT3DDEVICE9 pDevice, D3DPRESENT_PARAMETERS
 typedef HRESULT(WINAPI* _endScene)(LPDIRECT3DDEVICE9 pDevice);
 
 class D3D9Hook;
-typedef void(*_drawFrameCallback)(D3D9Hook* hook, LPDIRECT3DDEVICE9 pDevice);
 
 class D3D9Hook
 {
 public:
-	static _reset origReset;
 	static _endScene origEndScene;
 
 	static D3D9Hook* getInstance()
@@ -43,18 +43,15 @@ public:
 	}
 	void initialize();
 
-	DWORD __stdcall reportInitEndScene(LPDIRECT3DDEVICE9 device);
 	DWORD initHookCallback(LPDIRECT3DDEVICE9 device);
-
-	void addDrawFrameCallback(_drawFrameCallback cb);
-
-	DX_API resetHookCallback(LPDIRECT3DDEVICE9 pDevice, D3DPRESENT_PARAMETERS* pPresentationParameters);
-	DX_API endSceneHookCallback(LPDIRECT3DDEVICE9 pDevice);
-
 
 private:
 	D3D9Hook() {}
 	~D3D9Hook() {}
+
+	//-----------------Detour dynamic allocated pointers--------------------
+	static PLH::Detour* Detour_endScene;
+	//-----------------Detour dynamic allocated pointers--------------------
 
 	static LPDIRECT3DDEVICE9 gameDevice;         //to store game's d3d9 device
 
@@ -68,15 +65,7 @@ private:
 	DWORD locateOrigEndSceneAddres();
 
 	void placeHooks();
+
 	void onLostDevice();
-
-	std::vector<_drawFrameCallback> drawFrameCallbacks;
-
-	struct VFHookInfo
-	{
-		VFHookInfo(DWORD _index, DWORD cb, DWORD* _origFunc) : index(_index), callback(cb), origFunc(_origFunc) {}
-		DWORD index, callback;
-		DWORD* origFunc;
-	};
 
 };

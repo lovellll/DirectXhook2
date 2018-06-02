@@ -10,6 +10,6 @@
 #define DX_API HRESULT WINAPI
 #endif // !__DX_API__
 
-#include "Polyhook.hpp"
+#include "Polyhook.h"
 
 DX_API endScenehk(LPDIRECT3DDEVICE9 device);
