@@ -2,6 +2,8 @@
 #include "Hook.h"
 #include "DebugConsole.h"
 #include "Memory.h"
+#include <stdio.h>
+#include <stdarg.h>
 
 //-----------------Detour dynamic allocated pointers--------------------
 PLH::Detour* D3D9Hook::Detour_initialEndScene = nullptr;
@@ -20,7 +22,6 @@ _endScene D3D9Hook::origEndScene = nullptr;
 _reset D3D9Hook::origReset = nullptr;
 _drawIndexedPrimitive D3D9Hook::origDrawIndexedPrimitive = nullptr;
 
-LPDIRECT3DTEXTURE9 D3D9Hook::addedTexture = nullptr;
 
 void D3D9Hook::initialize()
 {
@@ -106,11 +107,12 @@ DWORD D3D9Hook::initHookCallback(LPDIRECT3DDEVICE9 pDevice)
 	Detour_initialEndScene->UnHook();
 	delete Detour_initialEndScene;
 	//-----------------Initialize textures, fonts, etc...-----------------------------//
-	//D3DXCreateFont
 	addedTexture = this->addTexture(L"red.png");
+	D3DXCreateFont(gameDevice, 15, 0, FW_BOLD, 1, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, ANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"Arial", &this->addedfont);
+	D3D9Hook::hookReadyPre = true;
 	//-----------------Initialize textures, fonts, etc...-----------------------------//
 	this->placeHooks();
-	//D3D9Hook::hookReadyPre = true;
+	D3D9Hook::hookReady = true;
 	return D3D9Hook::initialOrigEndScene(pDevice);   
 }
 
@@ -134,8 +136,18 @@ DWORD D3D9Hook::endSceneCallback(LPDIRECT3DDEVICE9 pDevice)
 	//DebugConsole::ConsolePrint("program called our endSceneCallback!");
 #endif // DEBUG
 	//put your own functions here
-	enableLighthackDirectional(pDevice);
-	enableLightHackAmbient(pDevice);
+	if (D3D9Hook::hookReady = true)
+	{
+		enableLighthackDirectional(pDevice);
+		enableLightHackAmbient(pDevice);
+	}
+	if (D3D9Hook::hookReadyPre = true)
+	{
+		//drawText(10, 25, D3DCOLOR_ARGB(255, 255, 0, 0), "!");
+	}
+
+	this->placeHooks();
+	D3D9Hook::hookReady = true;
 
 	return origEndScene(pDevice);
 }
@@ -146,6 +158,7 @@ DWORD D3D9Hook::resetCallback(LPDIRECT3DDEVICE9 pDevice, D3DPRESENT_PARAMETERS* 
 	DebugConsole::ConsolePrint("program called our resetCallback!");
 #endif // DEBUG
 
+	D3D9Hook::hookReadyPre = false;
 	auto result = origReset(pDevice, pPresentationParameters);
 	if (result == D3D_OK)
 	{
@@ -185,7 +198,36 @@ LPDIRECT3DTEXTURE9 D3D9Hook::addTexture(std::wstring imagePath)
 	return texture;
 }
 
-void D3D9Hook::onLostDevice(){}
+void D3D9Hook::drawText(int x, int y, D3DCOLOR color, const char *text, ...)
+{
+	//THIS FUNCTION WILL CRASH!//
+	RECT rect;
+	va_list va_alist;
+	char buf[256];
+
+	va_start(va_alist, text);
+	_vsnprintf_s(buf, sizeof(buf), text, va_alist);
+	va_end(va_alist);
+
+	rect.left = x + 1;
+	rect.top = y + 1;
+	rect.right = rect.left + 100;
+	rect.bottom = rect.top + 100;
+
+
+	this->addedfont->DrawTextA(NULL, buf, -1, &rect, 0, D3DCOLOR_ARGB(255, 10, 10, 10));
+	rect.left--;
+	rect.top--;
+	this->addedfont->DrawTextA(NULL, buf, -1, &rect, 0, color);
+}
+
+void D3D9Hook::onLostDevice()
+{
+	//addedTexture = this->addTexture(L"red.png");
+	if (this->addedfont)
+		this->addedfont->OnLostDevice();
+	D3D9Hook::hookReadyPre = true;
+}
 
 /*
 void D3D9Hook::placeHooks()

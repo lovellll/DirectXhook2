@@ -1,7 +1,7 @@
 #pragma once
 
 #include<vector>
-#include "Polyhook.h"
+#include "../PolyHook/PolyHook.h"
 
 //----------------d3d9 SDK--------------
 #include <d3d9.h>
@@ -56,6 +56,8 @@ public:
 	void drawIndexedPrimitiveCallback(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITIVETYPE PrimType, INT BaseVertexIndex, UINT MinVertexIndex, UINT NumVertices, UINT startIndex, UINT primCount);
 
 	LPDIRECT3DTEXTURE9 addTexture(std::wstring imagePath);
+	void drawText(int x, int y, D3DCOLOR color, const char * text, ...);
+
 private:
 	D3D9Hook() {}
 	~D3D9Hook() {}
@@ -76,5 +78,7 @@ private:
 	void placeHooks();
 	void onLostDevice();
 
-	static LPDIRECT3DTEXTURE9 addedTexture;
+	LPDIRECT3DTEXTURE9 addedTexture = nullptr;
+	LPD3DXFONT addedfont = nullptr;
+
 };

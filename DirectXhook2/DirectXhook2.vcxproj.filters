@@ -68,7 +68,7 @@
     <ClInclude Include="offsets.h">
       <Filter>头文件\Utils</Filter>
     </ClInclude>
-    <ClInclude Include="d:\Game Hack Tools\CODE\PolyHook-master\PolyHook\PolyHook.h">
+    <ClInclude Include="..\PolyHook\PolyHook.h">
       <Filter>头文件\Polyhook</Filter>
     </ClInclude>
   </ItemGroup>
