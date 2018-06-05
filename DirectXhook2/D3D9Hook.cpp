@@ -21,6 +21,11 @@ _reset D3D9Hook::origReset = nullptr;
 _drawIndexedPrimitive D3D9Hook::origDrawIndexedPrimitive = nullptr;
 
 LPDIRECT3DTEXTURE9 D3D9Hook::addedTexture = nullptr;
+LPD3DXFONT		  D3D9Hook::m_font = nullptr;
+
+//for test
+LPD3DXFONT g_font = nullptr;
+HRESULT g_fontFlag = false;
 
 void D3D9Hook::initialize()
 {
@@ -28,9 +33,9 @@ void D3D9Hook::initialize()
 		Sleep(10);
 
 	D3D9Hook::my_endSceneAddress = this->locateOrigEndSceneAddres();
-#ifdef DEBUG
+#ifdef _DEBUG
 	DebugConsole::ConsolePrint("endSceneAddress is %x\n", D3D9Hook::my_endSceneAddress);
-#endif // DEBUG
+#endif // _DEBUG
 
 	if (D3D9Hook::my_endSceneAddress)
 		//D3D9Hook::originalAsm = Hook::hookWithJump(D3D9Hook::my_endSceneAddress, (DWORD)&initialEndScenehk);  //store original endScene() asm code
@@ -38,16 +43,16 @@ void D3D9Hook::initialize()
 		Detour_initialEndScene = new PLH::Detour;
 		Detour_initialEndScene->SetupHook((BYTE*)D3D9Hook::my_endSceneAddress, (BYTE*)&initialEndScenehk);
 
-#ifdef DEBUG
+#ifdef _DEBUG
 		DebugConsole::ConsolePrint("&initialEndScenehk is %x\n", &initialEndScenehk);
-#endif // DEBUG
+#endif // _DEBUG
 
 		Detour_initialEndScene->Hook();
 		//initialOrigEndScene = Detour_initialEndScene->GetOriginal<_endScene>();
 		initialOrigEndScene = (_endScene)D3D9Hook::my_endSceneAddress;
-#ifdef DEBUG
+#ifdef _DEBUG
 		DebugConsole::ConsolePrint("initialOrigEndScene is %x\n", initialOrigEndScene);
-#endif // DEBUG
+#endif // _DEBUG
 
 	}																								
 	D3D9Hook::hookReady = true;
@@ -99,7 +104,7 @@ DWORD D3D9Hook::initHookCallback(LPDIRECT3DDEVICE9 pDevice)
 {
 	D3D9Hook::gameDevice = pDevice;
 
-#ifdef DEBUG
+#ifdef _DEBUG
 	DebugConsole::ConsolePrint("device address is %x\n", pDevice);
 #endif
 
@@ -107,6 +112,7 @@ DWORD D3D9Hook::initHookCallback(LPDIRECT3DDEVICE9 pDevice)
 	delete Detour_initialEndScene;
 	//-----------------Initialize textures, fonts, etc...-----------------------------//
 	//D3DXCreateFont
+	g_fontFlag = D3DXCreateFontA(pDevice, 16, 0, 400, 0, 0, DEFAULT_CHARSET, OUT_TT_ONLY_PRECIS, PROOF_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "ProggyClean", &g_font);
 	addedTexture = this->addTexture(L"red.png");
 	//-----------------Initialize textures, fonts, etc...-----------------------------//
 	this->placeHooks();
@@ -130,21 +136,31 @@ void D3D9Hook::placeHooks()
 
 DWORD D3D9Hook::endSceneCallback(LPDIRECT3DDEVICE9 pDevice)
 {
-#ifdef DEBUG
+#ifdef _DEBUG
 	//DebugConsole::ConsolePrint("program called our endSceneCallback!");
-#endif // DEBUG
-	//put your own functions here
+#endif // _DEBUG
+	//put your own functions here	
 	enableLighthackDirectional(pDevice);
 	enableLightHackAmbient(pDevice);
+
+	//Drawtext
+	//HRESULT fontFlag = D3DXCreateFontA(pDevice, 16, 0, 400, 0, 0, DEFAULT_CHARSET, OUT_TT_ONLY_PRECIS, PROOF_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "ProggyClean", &g_font);
+	//RECT rect;
+	//rect.left = 100; rect.right = 1200; rect.top = 100; rect.bottom = 600;
+	//if(fontFlag== S_OK)
+		//g_font->DrawTextA(NULL, "FOR FUCK'S SAKE", -1, &rect, DT_NOCLIP, D3DCOLOR_ARGB(255, 255, 255, 0));
+	//if (g_fontFlag == S_OK)
+		//drawMessage(g_font, 40, 40, 255, 255, 0, 255, L"drawtext test");
+	
 
 	return origEndScene(pDevice);
 }
 
 DWORD D3D9Hook::resetCallback(LPDIRECT3DDEVICE9 pDevice, D3DPRESENT_PARAMETERS* pPresentationParameters)
 {
-#ifdef DEBUG
+#ifdef _DEBUG
 	DebugConsole::ConsolePrint("program called our resetCallback!");
-#endif // DEBUG
+#endif // _DEBUG
 
 	auto result = origReset(pDevice, pPresentationParameters);
 	if (result == D3D_OK)
@@ -157,9 +173,9 @@ DWORD D3D9Hook::resetCallback(LPDIRECT3DDEVICE9 pDevice, D3DPRESENT_PARAMETERS* 
 
 void D3D9Hook::drawIndexedPrimitiveCallback(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITIVETYPE PrimType, INT BaseVertexIndex, UINT MinVertexIndex, UINT NumVertices, UINT startIndex, UINT primCount)
 {
-#ifdef DEBUG
+#ifdef _DEBUG
 	//DebugConsole::ConsolePrint("program called our drawIndexedPrimitiveCallback!");
-#endif // DEBUG
+#endif // _DEBUG
 	//----------------------------close Z-buffing---------------------------//
 	if (NumVertices == 24 && primCount == 12)
 	{
@@ -183,6 +199,19 @@ LPDIRECT3DTEXTURE9 D3D9Hook::addTexture(std::wstring imagePath)
 	if(D3DXCreateTextureFromFile(this->gameDevice, imagePath.c_str(), &texture) < 0)
 		return NULL;
 	return texture;
+}
+
+bool D3D9Hook::drawMessage(LPD3DXFONT font, unsigned int x, unsigned int y, int alpha, unsigned char r, unsigned char g, unsigned char b, LPCWSTR Message)
+{	// Create a colour for the text
+	D3DCOLOR fontColor = D3DCOLOR_ARGB(alpha, r, g, b);
+	RECT rct; //Font
+	rct.left = x;
+	rct.right = 1680;
+	rct.top = y;
+	rct.bottom = rct.top + 200;
+	if (font!=nullptr)
+		font->DrawTextW(NULL, Message, -1, &rct, DT_LEFT, fontColor);
+	return true;
 }
 
 void D3D9Hook::onLostDevice(){}
@@ -216,9 +245,9 @@ DX_API D3D9Hook::resetHookCallback(LPDIRECT3DDEVICE9 pDevice, D3DPRESENT_PARAMET
 void D3D9Hook::onLostDevice()
 {
 	//call your recovery functios here
-#ifdef DEBUG
+#ifdef _DEBUG
 	DebugConsole::ConsolePrint("device reset!\n");
-#endif // DEBUG
+#endif // _DEBUG
 
 }
 
@@ -228,9 +257,9 @@ DX_API D3D9Hook::endSceneHookCallback(LPDIRECT3DDEVICE9 pDevice)
 	//for (int i = 0; i < drawFrameCallbacks.size(); i++)
 	//drawFrameCallbacks[i](this, pDevice);
 	
-#ifdef DEBUG
+#ifdef _DEBUG
 	//DebugConsole::ConsolePrint("gamedevice's endScene Attached!\n");
-#endif // DEBUG
+#endif // _DEBUG
 
 
 	auto result = initialOrigEndScene(pDevice);

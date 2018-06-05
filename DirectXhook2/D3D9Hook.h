@@ -6,8 +6,12 @@
 //----------------d3d9 SDK--------------
 #include <d3d9.h>
 #include <d3dx9.h>
-#pragma comment(lib, "d3d9.lib")
-#pragma comment(lib, "d3dx9.lib")
+//#pragma comment(lib, "d3d9.lib")
+#ifdef _DEBUG
+	#pragma comment(lib,"d3dx9d.lib")
+#else
+	#pragma comment(lib,"d3dx9.lib")
+#endif
 //----------------d3d9 SDK--------------
 
 #ifndef __DX_API__
@@ -56,6 +60,8 @@ public:
 	void drawIndexedPrimitiveCallback(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITIVETYPE PrimType, INT BaseVertexIndex, UINT MinVertexIndex, UINT NumVertices, UINT startIndex, UINT primCount);
 
 	LPDIRECT3DTEXTURE9 addTexture(std::wstring imagePath);
+	bool drawMessage(LPD3DXFONT font, unsigned int x, unsigned int y, int alpha, unsigned char r, unsigned char g, unsigned char b, LPCWSTR Message);
+
 private:
 	D3D9Hook() {}
 	~D3D9Hook() {}
@@ -77,4 +83,5 @@ private:
 	void onLostDevice();
 
 	static LPDIRECT3DTEXTURE9 addedTexture;
+	static LPD3DXFONT		  m_font;
 };

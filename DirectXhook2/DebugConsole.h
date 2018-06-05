@@ -1,6 +1,6 @@
 #pragma once
 
-#define DEBUG
+//#define _DEBUG
 #define NOMINMAX
 #include <Windows.h>
 #include <string>

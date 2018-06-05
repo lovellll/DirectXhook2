@@ -71,8 +71,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>D:\Game Hack Tools\CODE\PolyHook-master\Capstone\include;D:\Game Hack Tools\CODE\PolyHook-master\PolyHook;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(DXSDK_DIR)Include</IncludePath>
-    <LibraryPath>D:\Game Hack Tools\CODE\PolyHook-master\Capstone\msvc\x86\Release;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;D:\Microsoft DirectX SDK (June 2010)\Lib\x86</LibraryPath>
+    <IncludePath>F:\Github\DirectXhook2\PolyHook;F:\Github\DirectXhook2\Capstone\include;$(VC_IncludePath);$(WindowsSDK_IncludePath);D:\Microsoft DirectX SDK %28June 2010%29\Include</IncludePath>
+    <LibraryPath>F:\Github\DirectXhook2\Capstone\msvc\x86\Debug;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;D:\Microsoft DirectX SDK (June 2010)\Lib\x86</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -158,7 +158,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="D3D9Hook.h" />
-    <ClInclude Include="d:\Game Hack Tools\CODE\PolyHook-master\PolyHook\PolyHook.h" />
+    <ClInclude Include="d:\Game Hack Tools\CODE\PolyHook-master\PolyHook\Polyhook.h" />
     <ClInclude Include="DebugConsole.h" />
     <ClInclude Include="Hook.h" />
     <ClInclude Include="Memory.h" />

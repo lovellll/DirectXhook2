@@ -33,7 +33,7 @@ BOOL APIENTRY DllMain(HMODULE hModule,DWORD  ul_reason_for_call,LPVOID lpReserve
 
 DWORD WINAPI ATTACHED(LPVOID lpParam)
 {
-#ifdef DEBUG
+#ifdef _DEBUG
 	DebugConsole::AttachConsole();
 	DebugConsole::ConsolePrint("DLL injected!\n");
 #endif
