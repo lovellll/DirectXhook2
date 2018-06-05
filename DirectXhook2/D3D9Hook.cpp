@@ -143,7 +143,7 @@ DWORD D3D9Hook::endSceneCallback(LPDIRECT3DDEVICE9 pDevice)
 	}
 	if (D3D9Hook::hookReadyPre = true)
 	{
-		//drawText(10, 25, D3DCOLOR_ARGB(255, 255, 0, 0), "!");
+		drawText(10, 25, D3DCOLOR_ARGB(255, 255, 0, 0), "Draw text test");
 	}
 
 	this->placeHooks();
