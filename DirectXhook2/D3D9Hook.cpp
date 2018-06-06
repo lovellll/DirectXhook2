@@ -21,7 +21,7 @@ _endScene D3D9Hook::origEndScene = nullptr;
 _reset D3D9Hook::origReset = nullptr;
 _drawIndexedPrimitive D3D9Hook::origDrawIndexedPrimitive = nullptr;
 
-LPDIRECT3DTEXTURE9 D3D9Hook::addedTexture = nullptr;
+LPDIRECT3DTEXTURE9 D3D9Hook::m_texture = nullptr;
 LPD3DXFONT		  D3D9Hook::m_font = nullptr;
 
 void D3D9Hook::initialize()
@@ -107,7 +107,7 @@ DWORD D3D9Hook::initHookCallback(LPDIRECT3DDEVICE9 pDevice)
 	Detour_initialEndScene->UnHook();
 	delete Detour_initialEndScene;
 	//-----------------Initialize textures, fonts, etc...-----------------------------//
-	//addedTexture = this->addTexture(L"red.png");
+
 	//-----------------Initialize textures, fonts, etc...-----------------------------//
 	this->placeHooks(pDevice);
 	//D3D9Hook::hookReadyPre = true;
@@ -126,7 +126,7 @@ void D3D9Hook::placeHooks(LPDIRECT3DDEVICE9 pDevice)
 	//----------------------endScenehook-------------------------//
 	//----------------------other hooks--------------------------//
 	//origReset = VTableSwap_placeHooks->HookAdditional<_reset>(16, (BYTE*)&resethk);
-	//origDrawIndexedPrimitive = VTableSwap_placeHooks->HookAdditional<_drawIndexedPrimitive>(82, (BYTE*)&drawIndexedPrimitivehk);
+	origDrawIndexedPrimitive = VTableSwap_placeHooks->HookAdditional<_drawIndexedPrimitive>(82, (BYTE*)&drawIndexedPrimitivehk);
 	//----------------------other hooks--------------------------//
 	//----------------------hook WndProc-------------------------//
 	Menu::getInstance()->initialize(pDevice);
@@ -138,9 +138,13 @@ DWORD D3D9Hook::endSceneCallback(LPDIRECT3DDEVICE9 pDevice)
 #ifdef _DEBUG
 	//DebugConsole::ConsolePrint("program called our endSceneCallback!");
 #endif // _DEBUG
+	//drawText
+	drawText(60, 60, D3DCOLOR_ARGB(255, 0, 255, 0), "TEXT");
+
 	//put your own functions here	
 	//enableLighthackDirectional(pDevice);
 	//enableLightHackAmbient(pDevice);
+	
 	//initialize imgui menu
 	if (!Menu::bWasInitialized)
 	{
@@ -152,7 +156,7 @@ DWORD D3D9Hook::endSceneCallback(LPDIRECT3DDEVICE9 pDevice)
 		ImGui_ImplDX9_Init(d3dcp.hFocusWindow, pDevice);
 		Menu::bWasInitialized = true;
 	}
-
+	
 	ImGui_ImplDX9_NewFrame();
 	//draw menu here
 
@@ -164,7 +168,8 @@ DWORD D3D9Hook::endSceneCallback(LPDIRECT3DDEVICE9 pDevice)
 	ImGui::EndFrame();
 	ImGui::Render();
 	ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
-		
+	
+
 	return origEndScene(pDevice);
 }
 
@@ -183,12 +188,13 @@ DWORD D3D9Hook::resetCallback(LPDIRECT3DDEVICE9 pDevice, D3DPRESENT_PARAMETERS* 
 	return result;
 }
 
-void D3D9Hook::drawIndexedPrimitiveCallback(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITIVETYPE PrimType, INT BaseVertexIndex, UINT MinVertexIndex, UINT NumVertices, UINT startIndex, UINT primCount)
+HRESULT WINAPI D3D9Hook::drawIndexedPrimitiveCallback(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITIVETYPE PrimType, INT BaseVertexIndex, UINT MinVertexIndex, UINT NumVertices, UINT startIndex, UINT primCount)
 {
 #ifdef _DEBUG
 	//DebugConsole::ConsolePrint("program called our drawIndexedPrimitiveCallback!");
 #endif // _DEBUG
 	//----------------------------close Z-buffing---------------------------//
+	/*
 	if (NumVertices == 24 && primCount == 12)
 	{
 		pDevice->SetRenderState(D3DRS_ZENABLE, false);
@@ -199,10 +205,15 @@ void D3D9Hook::drawIndexedPrimitiveCallback(LPDIRECT3DDEVICE9 pDevice, D3DPRIMIT
 	{
 		origDrawIndexedPrimitive(pDevice, PrimType, BaseVertexIndex, MinVertexIndex, NumVertices, startIndex, primCount);
 	}
+	*/
 	//----------------------------close Z-buffing---------------------------//
 	//----------------------------change texture---------------------------//
-	pDevice->SetTexture(0, addedTexture);
+	//if(!m_texture)
+		//m_texture = this->addTexture(L"red.png");
+	//else
+		//pDevice->SetTexture(0, m_texture);
 	//----------------------------change texture---------------------------//
+	return origDrawIndexedPrimitive(pDevice, PrimType, BaseVertexIndex, MinVertexIndex, NumVertices, startIndex, primCount);
 }
 
 LPDIRECT3DTEXTURE9 D3D9Hook::addTexture(std::wstring imagePath)
@@ -213,62 +224,37 @@ LPDIRECT3DTEXTURE9 D3D9Hook::addTexture(std::wstring imagePath)
 	return texture;
 }
 
+void D3D9Hook::drawText(int x, int y, D3DCOLOR color, const char *text, ...)
+{
+	//DWORD oldColorSettings;
+	//gameDevice->GetRenderState(D3DRS_COLORWRITEENABLE, &oldColorSettings);
+	//gameDevice->SetRenderState(D3DRS_COLORWRITEENABLE, 0xffffffff);
+
+	if (!m_font) 
+		D3DXCreateFontA(gameDevice, 16, 0, FW_BOLD, 0, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, ANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Arial", &m_font);
+	RECT rect;
+	va_list va_alist;
+	char buf[256];
+
+	va_start(va_alist, text);
+	_vsnprintf_s(buf, sizeof(buf), text, va_alist);
+	va_end(va_alist);
+
+	rect.left = x + 1;
+	rect.top = y + 1;
+	rect.right = rect.left + 1000;
+	rect.bottom = rect.top + 1000;
+	
+	if (m_font)
+	{
+		this->m_font->DrawTextA(NULL, buf, -1, &rect, 0, D3DCOLOR_ARGB(255, 10, 10, 10));
+		rect.left--;
+		rect.top--;
+		this->m_font->DrawTextA(NULL, buf, -1, &rect, 0, color);
+	}
+
+	//gameDevice->SetRenderState(D3DRS_COLORWRITEENABLE, oldColorSettings);
+}
+
 void D3D9Hook::onLostDevice(){}
 
-/*
-void D3D9Hook::placeHooks()
-{
-	//static const DWORD VHHookCount = 2;
-	static const DWORD VHHookCount = 1;
-	static VFHookInfo VFHooks[VHHookCount] =
-	{
-		//VFHookInfo(16, (DWORD)&myReset, (DWORD*)&D3D9Hook::origReset),
-		VFHookInfo(42, (DWORD)&myEndScene, (DWORD*)&D3D9Hook::initialOrigEndScene)
-	};
-
-	for (int hook = 0; hook < VHHookCount; hook++)
-	{
-		DWORD ret = Hook::vfHook((DWORD)D3D9Hook::gameDevice, VFHooks[hook].index, VFHooks[hook].callback);
-		if (ret != VFHooks[hook].callback)
-			*VFHooks[hook].origFunc = ret;
-	}
-}
-
-DX_API D3D9Hook::resetHookCallback(LPDIRECT3DDEVICE9 pDevice, D3DPRESENT_PARAMETERS * pPresentationParameters)
-{
-	auto result = origReset(pDevice, pPresentationParameters);
-	if (result == D3D_OK)
-		this->onLostDevice();
-	return result;
-}
-void D3D9Hook::onLostDevice()
-{
-	//call your recovery functios here
-#ifdef _DEBUG
-	DebugConsole::ConsolePrint("device reset!\n");
-#endif // _DEBUG
-
-}
-
-DX_API D3D9Hook::endSceneHookCallback(LPDIRECT3DDEVICE9 pDevice)
-{
-	
-	//for (int i = 0; i < drawFrameCallbacks.size(); i++)
-	//drawFrameCallbacks[i](this, pDevice);
-	
-#ifdef _DEBUG
-	//DebugConsole::ConsolePrint("gamedevice's endScene Attached!\n");
-#endif // _DEBUG
-
-
-	auto result = initialOrigEndScene(pDevice);
-	this->placeHooks();      //Ë³Ðò£¿
-	return result;
-}
-
-void D3D9Hook::addDrawFrameCallback(_drawFrameCallback cb)
-{
-	if (!D3D9Hook::hookReady)
-		this->drawFrameCallbacks.push_back(cb);
-}
-*/

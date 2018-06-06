@@ -57,9 +57,11 @@ public:
 	DWORD initHookCallback(LPDIRECT3DDEVICE9 pDevice);
 	DWORD endSceneCallback(LPDIRECT3DDEVICE9 pDevice);
 	DWORD resetCallback(LPDIRECT3DDEVICE9 pDevice, D3DPRESENT_PARAMETERS* pPresentationParameters);
-	void drawIndexedPrimitiveCallback(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITIVETYPE PrimType, INT BaseVertexIndex, UINT MinVertexIndex, UINT NumVertices, UINT startIndex, UINT primCount);
+	HRESULT WINAPI drawIndexedPrimitiveCallback(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITIVETYPE PrimType, INT BaseVertexIndex, UINT MinVertexIndex, UINT NumVertices, UINT startIndex, UINT primCount);
 
 	LPDIRECT3DTEXTURE9 addTexture(std::wstring imagePath);
+
+	void drawText(int x, int y, D3DCOLOR color, const char * text, ...);
 
 private:
 	D3D9Hook() {}
@@ -81,6 +83,6 @@ private:
 	void placeHooks(LPDIRECT3DDEVICE9 pDevic);
 	void onLostDevice();
 
-	static LPDIRECT3DTEXTURE9 addedTexture;
+	static LPDIRECT3DTEXTURE9 m_texture;
 	static LPD3DXFONT		  m_font;
 };
