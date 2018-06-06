@@ -19,8 +19,3 @@ DX_API endScenehk(LPDIRECT3DDEVICE9 pDevice);
 DX_API resethk(LPDIRECT3DDEVICE9 pDevice, D3DPRESENT_PARAMETERS * pPresentationParameters);
 
 DX_API drawIndexedPrimitivehk(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITIVETYPE PrimType, INT BaseVertexIndex, UINT MinVertexIndex, UINT NumVertices, UINT startIndex, UINT primCount);
-
-//-----------------------those are testing DX hooks
-void enableLighthackDirectional(LPDIRECT3DDEVICE9 pDevice);
-void enableLightHackAmbient(LPDIRECT3DDEVICE9 pDevice);
-//-----------------------those are testing DX hooks---------------//

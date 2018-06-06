@@ -13,6 +13,8 @@
 #endif
 //----------------d3d9 SDK--------------
 
+#include "Options.h"
+
 class Menu
 {
 public:
@@ -41,6 +43,12 @@ public:
 
 	void initialize(LPDIRECT3DDEVICE9 pDevice);
 	static bool bWasInitialized;
+
+	void imguiInitialize(LPDIRECT3DDEVICE9 pDevice);
+	static bool bImguiWasInitialized;
+
+	void renderFrame();
+	void drawMenu(); //config your menu here
 
 private:
 	static Menu* instance;

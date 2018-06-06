@@ -3,6 +3,7 @@
 #include "DebugConsole.h"
 #include "Memory.h"
 #include "Menu.h"
+#include "Options.h"
 
 //-----------------Detour dynamic allocated pointers--------------------
 PLH::Detour* D3D9Hook::Detour_initialEndScene = nullptr;
@@ -139,37 +140,17 @@ DWORD D3D9Hook::endSceneCallback(LPDIRECT3DDEVICE9 pDevice)
 	//DebugConsole::ConsolePrint("program called our endSceneCallback!");
 #endif // _DEBUG
 	//drawText
-	drawText(60, 60, D3DCOLOR_ARGB(255, 0, 255, 0), "TEXT");
+	if (g_Options.text_enabled)
+		drawText(60, 60, D3DCOLOR_ARGB(255, 0, 255, 0), "TEXT");
 
-	//put your own functions here	
-	//enableLighthackDirectional(pDevice);
-	//enableLightHackAmbient(pDevice);
+	//light hack
+	lighthackDirectionalSwitch(pDevice, g_Options.light_enabled);
+	lightHackAmbientSwitch(pDevice, g_Options.light_enabled);
+
+	//imgui menu
+	Menu::getInstance()->Menu::imguiInitialize(pDevice);
+	Menu::getInstance()->Menu::renderFrame();
 	
-	//initialize imgui menu
-	if (!Menu::bWasInitialized)
-	{
-		ImGuiIO& io = ImGui::GetIO(); (void)io;
-		io.DeltaTime = 1.0f / 60.0f;
-		D3DDEVICE_CREATION_PARAMETERS d3dcp{ 0 };
-		pDevice->GetCreationParameters(&d3dcp);
-		io.Fonts->AddFontDefault();
-		ImGui_ImplDX9_Init(d3dcp.hFocusWindow, pDevice);
-		Menu::bWasInitialized = true;
-	}
-	
-	ImGui_ImplDX9_NewFrame();
-	//draw menu here
-
-	ImGui::Text("Hello World!");
-
-	ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiCond_FirstUseEver); // Normally user code doesn't need/want to call this because positions are saved in .ini file anyway. Here we just want to make the demo initial state a bit more friendly!
-	ImGui::ShowDemoWindow();
-
-	ImGui::EndFrame();
-	ImGui::Render();
-	ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
-	
-
 	return origEndScene(pDevice);
 }
 
@@ -208,10 +189,13 @@ HRESULT WINAPI D3D9Hook::drawIndexedPrimitiveCallback(LPDIRECT3DDEVICE9 pDevice,
 	*/
 	//----------------------------close Z-buffing---------------------------//
 	//----------------------------change texture---------------------------//
-	//if(!m_texture)
-		//m_texture = this->addTexture(L"red.png");
-	//else
-		//pDevice->SetTexture(0, m_texture);
+	if (g_Options.texture_enabled)
+	{
+		if (!m_texture)
+			m_texture = this->addTexture(L"red.png");
+		else
+			pDevice->SetTexture(0, m_texture);
+	}
 	//----------------------------change texture---------------------------//
 	return origDrawIndexedPrimitive(pDevice, PrimType, BaseVertexIndex, MinVertexIndex, NumVertices, startIndex, primCount);
 }
@@ -254,6 +238,35 @@ void D3D9Hook::drawText(int x, int y, D3DCOLOR color, const char *text, ...)
 	}
 
 	//gameDevice->SetRenderState(D3DRS_COLORWRITEENABLE, oldColorSettings);
+}
+
+void D3D9Hook::lighthackDirectionalSwitch(LPDIRECT3DDEVICE9 pDevice, bool isEnable)
+{
+	static DWORD lightIndex = 0;
+	if (isEnable)
+	{
+		D3DLIGHT9 light;
+		ZeroMemory(&light, sizeof(light));
+		light.Type = D3DLIGHT_DIRECTIONAL;
+		light.Diffuse = D3DXCOLOR(0.5f, 0.5f, 0.5f, 1.0f);
+		light.Direction = D3DXVECTOR3(-1.0f, -0.5f, -1.0f);
+
+		pDevice->SetLight(lightIndex, &light);
+		pDevice->LightEnable(lightIndex, true);
+	}
+	else
+	{
+		pDevice->LightEnable(lightIndex, false);
+	}
+	
+}
+
+void D3D9Hook::lightHackAmbientSwitch(LPDIRECT3DDEVICE9 pDevice, bool isEnable)
+{
+	if (isEnable)
+		pDevice->SetRenderState(D3DRS_AMBIENT, D3DCOLOR_XRGB(100, 100, 100));
+	else
+		pDevice->SetRenderState(D3DRS_AMBIENT, D3DCOLOR_XRGB(20, 20, 20));
 }
 
 void D3D9Hook::onLostDevice(){}

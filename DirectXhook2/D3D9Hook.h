@@ -83,6 +83,11 @@ private:
 	void placeHooks(LPDIRECT3DDEVICE9 pDevic);
 	void onLostDevice();
 
+	//-----------------------those are testing DX hooks---------------//
+	void lighthackDirectionalSwitch(LPDIRECT3DDEVICE9 pDevice, bool isEnable);
+	void lightHackAmbientSwitch(LPDIRECT3DDEVICE9 pDevice, bool isEnable);
+	//-----------------------those are testing DX hooks---------------//
+
 	static LPDIRECT3DTEXTURE9 m_texture;
 	static LPD3DXFONT		  m_font;
 };

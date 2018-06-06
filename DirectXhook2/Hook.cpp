@@ -21,21 +21,3 @@ DX_API drawIndexedPrimitivehk(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITIVETYPE PrimTy
 	return D3D9Hook::getInstance()->drawIndexedPrimitiveCallback(pDevice, PrimType, BaseVertexIndex, MinVertexIndex, NumVertices, startIndex, primCount);
 }
 
-//-----------------------those are testing DX hooks---------------//
-void enableLighthackDirectional(LPDIRECT3DDEVICE9 pDevice)
-{
-	D3DLIGHT9 light;
-	ZeroMemory(&light, sizeof(light));
-	light.Type = D3DLIGHT_DIRECTIONAL;
-	light.Diffuse = D3DXCOLOR(0.5f, 0.5f, 0.5f, 1.0f);
-	light.Direction = D3DXVECTOR3(-1.0f, -0.5f, -1.0f);
-
-	pDevice->SetLight(0, &light);
-	pDevice->LightEnable(0, true);
-}
-
-void enableLightHackAmbient(LPDIRECT3DDEVICE9 pDevice)
-{
-	pDevice->SetRenderState(D3DRS_AMBIENT, D3DCOLOR_XRGB(100, 100, 100));
-}
-//-----------------------those are testing DX hooks---------------//

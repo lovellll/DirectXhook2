@@ -34,6 +34,12 @@
     <Filter Include="源文件\imgui">
       <UniqueIdentifier>{ba76e691-24c5-493c-b977-187613c6714f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="源文件\menuconfig">
+      <UniqueIdentifier>{43548357-27a1-4f82-9ac9-63ae4f750769}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\menuconfig">
+      <UniqueIdentifier>{58b3314a-ddc6-4ffb-a60e-af3c85836079}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="D3D9Hook.cpp">
@@ -71,6 +77,9 @@
     </ClCompile>
     <ClCompile Include="D:\Game Hack Tools\CODE\imgui-master\imgui_demo.cpp">
       <Filter>源文件\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Options.cpp">
+      <Filter>源文件\menuconfig</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -112,6 +121,9 @@
     </ClInclude>
     <ClInclude Include="D:\Game Hack Tools\CODE\imgui-master\stb_truetype.h">
       <Filter>头文件\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Options.h">
+      <Filter>头文件\menuconfig</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
