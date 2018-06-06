@@ -28,6 +28,12 @@
     <Filter Include="源文件\Polyhook">
       <UniqueIdentifier>{8721ffa6-9636-4ee6-92bc-3c0b2d56189c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="头文件\imgui">
+      <UniqueIdentifier>{dd75b4dc-7f73-41ad-8510-a1a7c6897dbb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\imgui">
+      <UniqueIdentifier>{ba76e691-24c5-493c-b977-187613c6714f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="D3D9Hook.cpp">
@@ -51,6 +57,18 @@
     <ClCompile Include="Polyhook.cpp">
       <Filter>源文件\Polyhook</Filter>
     </ClCompile>
+    <ClCompile Include="Menu.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Game Hack Tools\CODE\imgui-master\imgui.cpp">
+      <Filter>源文件\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Game Hack Tools\CODE\imgui-master\imgui_draw.cpp">
+      <Filter>源文件\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Game Hack Tools\CODE\imgui-master\examples\directx9_example\imgui_impl_dx9.cpp">
+      <Filter>源文件\imgui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="D3D9Hook.h">
@@ -70,6 +88,27 @@
     </ClInclude>
     <ClInclude Include="d:\Game Hack Tools\CODE\PolyHook-master\PolyHook\Polyhook.h">
       <Filter>头文件\Polyhook</Filter>
+    </ClInclude>
+    <ClInclude Include="Menu.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Game Hack Tools\CODE\imgui-master\imconfig.h">
+      <Filter>头文件\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Game Hack Tools\CODE\imgui-master\imgui.h">
+      <Filter>头文件\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Game Hack Tools\CODE\imgui-master\imgui_internal.h">
+      <Filter>头文件\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Game Hack Tools\CODE\imgui-master\stb_rect_pack.h">
+      <Filter>头文件\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Game Hack Tools\CODE\imgui-master\stb_textedit.h">
+      <Filter>头文件\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Game Hack Tools\CODE\imgui-master\stb_truetype.h">
+      <Filter>头文件\imgui</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -60,7 +60,6 @@ public:
 	void drawIndexedPrimitiveCallback(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITIVETYPE PrimType, INT BaseVertexIndex, UINT MinVertexIndex, UINT NumVertices, UINT startIndex, UINT primCount);
 
 	LPDIRECT3DTEXTURE9 addTexture(std::wstring imagePath);
-	bool drawMessage(LPD3DXFONT font, unsigned int x, unsigned int y, int alpha, unsigned char r, unsigned char g, unsigned char b, LPCWSTR Message);
 
 private:
 	D3D9Hook() {}
@@ -79,7 +78,7 @@ private:
 
 	DWORD locateOrigEndSceneAddres();
 
-	void placeHooks();
+	void placeHooks(LPDIRECT3DDEVICE9 pDevic);
 	void onLostDevice();
 
 	static LPDIRECT3DTEXTURE9 addedTexture;

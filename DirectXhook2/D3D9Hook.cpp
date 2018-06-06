@@ -2,6 +2,7 @@
 #include "Hook.h"
 #include "DebugConsole.h"
 #include "Memory.h"
+#include "Menu.h"
 
 //-----------------Detour dynamic allocated pointers--------------------
 PLH::Detour* D3D9Hook::Detour_initialEndScene = nullptr;
@@ -22,10 +23,6 @@ _drawIndexedPrimitive D3D9Hook::origDrawIndexedPrimitive = nullptr;
 
 LPDIRECT3DTEXTURE9 D3D9Hook::addedTexture = nullptr;
 LPD3DXFONT		  D3D9Hook::m_font = nullptr;
-
-//for test
-LPD3DXFONT g_font = nullptr;
-HRESULT g_fontFlag = false;
 
 void D3D9Hook::initialize()
 {
@@ -48,7 +45,6 @@ void D3D9Hook::initialize()
 #endif // _DEBUG
 
 		Detour_initialEndScene->Hook();
-		//initialOrigEndScene = Detour_initialEndScene->GetOriginal<_endScene>();
 		initialOrigEndScene = (_endScene)D3D9Hook::my_endSceneAddress;
 #ifdef _DEBUG
 		DebugConsole::ConsolePrint("initialOrigEndScene is %x\n", initialOrigEndScene);
@@ -111,16 +107,14 @@ DWORD D3D9Hook::initHookCallback(LPDIRECT3DDEVICE9 pDevice)
 	Detour_initialEndScene->UnHook();
 	delete Detour_initialEndScene;
 	//-----------------Initialize textures, fonts, etc...-----------------------------//
-	//D3DXCreateFont
-	g_fontFlag = D3DXCreateFontA(pDevice, 16, 0, 400, 0, 0, DEFAULT_CHARSET, OUT_TT_ONLY_PRECIS, PROOF_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "ProggyClean", &g_font);
 	addedTexture = this->addTexture(L"red.png");
 	//-----------------Initialize textures, fonts, etc...-----------------------------//
-	this->placeHooks();
+	this->placeHooks(pDevice);
 	//D3D9Hook::hookReadyPre = true;
 	return D3D9Hook::initialOrigEndScene(pDevice);   
 }
 
-void D3D9Hook::placeHooks()
+void D3D9Hook::placeHooks(LPDIRECT3DDEVICE9 pDevice)
 {
 	//can place your hooks here
 	//D3D9Hook::gameDevice is the class
@@ -132,6 +126,9 @@ void D3D9Hook::placeHooks()
 	//----------------------endScenehook-------------------------//
 	origReset = VTableSwap_placeHooks->HookAdditional<_reset>(16, (BYTE*)&resethk);
 	origDrawIndexedPrimitive = VTableSwap_placeHooks->HookAdditional<_drawIndexedPrimitive>(82, (BYTE*)&drawIndexedPrimitivehk);
+	//----------------------hook WndProc-------------------------//
+	Menu::getInstance()->initialize(pDevice);
+	//----------------------hook WndProc-------------------------//
 }
 
 DWORD D3D9Hook::endSceneCallback(LPDIRECT3DDEVICE9 pDevice)
@@ -142,17 +139,28 @@ DWORD D3D9Hook::endSceneCallback(LPDIRECT3DDEVICE9 pDevice)
 	//put your own functions here	
 	enableLighthackDirectional(pDevice);
 	enableLightHackAmbient(pDevice);
+	//initialize imgui menu
+	if (!Menu::bWasInitialized)
+	{
+		ImGuiIO& io = ImGui::GetIO();
+		io.DeltaTime = 1.0f / 60.0f;
+		D3DDEVICE_CREATION_PARAMETERS d3dcp{ 0 };
+		pDevice->GetCreationParameters(&d3dcp);
+		io.Fonts->AddFontDefault();
+		ImGui_ImplDX9_Init(d3dcp.hFocusWindow, pDevice);
+		Menu::bWasInitialized = true;
+	}
 
-	//Drawtext
-	//HRESULT fontFlag = D3DXCreateFontA(pDevice, 16, 0, 400, 0, 0, DEFAULT_CHARSET, OUT_TT_ONLY_PRECIS, PROOF_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "ProggyClean", &g_font);
-	//RECT rect;
-	//rect.left = 100; rect.right = 1200; rect.top = 100; rect.bottom = 600;
-	//if(fontFlag== S_OK)
-		//g_font->DrawTextA(NULL, "FOR FUCK'S SAKE", -1, &rect, DT_NOCLIP, D3DCOLOR_ARGB(255, 255, 255, 0));
-	//if (g_fontFlag == S_OK)
-		//drawMessage(g_font, 40, 40, 255, 255, 0, 255, L"drawtext test");
-	
+	ImGui_ImplDX9_NewFrame();
+	//draw menu here
+	ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiSetCond_FirstUseEver);
+	ImGui::Begin("cao!");
+	ImGui::Text("Hello World!");
 
+	ImGui::End();
+
+	ImGui::Render();
+		
 	return origEndScene(pDevice);
 }
 
@@ -199,19 +207,6 @@ LPDIRECT3DTEXTURE9 D3D9Hook::addTexture(std::wstring imagePath)
 	if(D3DXCreateTextureFromFile(this->gameDevice, imagePath.c_str(), &texture) < 0)
 		return NULL;
 	return texture;
-}
-
-bool D3D9Hook::drawMessage(LPD3DXFONT font, unsigned int x, unsigned int y, int alpha, unsigned char r, unsigned char g, unsigned char b, LPCWSTR Message)
-{	// Create a colour for the text
-	D3DCOLOR fontColor = D3DCOLOR_ARGB(alpha, r, g, b);
-	RECT rct; //Font
-	rct.left = x;
-	rct.right = 1680;
-	rct.top = y;
-	rct.bottom = rct.top + 200;
-	if (font!=nullptr)
-		font->DrawTextW(NULL, Message, -1, &rct, DT_LEFT, fontColor);
-	return true;
 }
 
 void D3D9Hook::onLostDevice(){}
