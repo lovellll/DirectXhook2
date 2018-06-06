@@ -69,6 +69,9 @@
     <ClCompile Include="D:\Game Hack Tools\CODE\imgui-master\examples\directx9_example\imgui_impl_dx9.cpp">
       <Filter>源文件\imgui</Filter>
     </ClCompile>
+    <ClCompile Include="D:\Game Hack Tools\CODE\imgui-master\imgui_demo.cpp">
+      <Filter>源文件\imgui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="D3D9Hook.h">

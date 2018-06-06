@@ -107,7 +107,7 @@ DWORD D3D9Hook::initHookCallback(LPDIRECT3DDEVICE9 pDevice)
 	Detour_initialEndScene->UnHook();
 	delete Detour_initialEndScene;
 	//-----------------Initialize textures, fonts, etc...-----------------------------//
-	addedTexture = this->addTexture(L"red.png");
+	//addedTexture = this->addTexture(L"red.png");
 	//-----------------Initialize textures, fonts, etc...-----------------------------//
 	this->placeHooks(pDevice);
 	//D3D9Hook::hookReadyPre = true;
@@ -124,8 +124,10 @@ void D3D9Hook::placeHooks(LPDIRECT3DDEVICE9 pDevice)
 	VTableSwap_placeHooks->Hook();
 	origEndScene = VTableSwap_placeHooks->GetOriginal<_endScene>();
 	//----------------------endScenehook-------------------------//
-	origReset = VTableSwap_placeHooks->HookAdditional<_reset>(16, (BYTE*)&resethk);
-	origDrawIndexedPrimitive = VTableSwap_placeHooks->HookAdditional<_drawIndexedPrimitive>(82, (BYTE*)&drawIndexedPrimitivehk);
+	//----------------------other hooks--------------------------//
+	//origReset = VTableSwap_placeHooks->HookAdditional<_reset>(16, (BYTE*)&resethk);
+	//origDrawIndexedPrimitive = VTableSwap_placeHooks->HookAdditional<_drawIndexedPrimitive>(82, (BYTE*)&drawIndexedPrimitivehk);
+	//----------------------other hooks--------------------------//
 	//----------------------hook WndProc-------------------------//
 	Menu::getInstance()->initialize(pDevice);
 	//----------------------hook WndProc-------------------------//
@@ -137,12 +139,12 @@ DWORD D3D9Hook::endSceneCallback(LPDIRECT3DDEVICE9 pDevice)
 	//DebugConsole::ConsolePrint("program called our endSceneCallback!");
 #endif // _DEBUG
 	//put your own functions here	
-	enableLighthackDirectional(pDevice);
-	enableLightHackAmbient(pDevice);
+	//enableLighthackDirectional(pDevice);
+	//enableLightHackAmbient(pDevice);
 	//initialize imgui menu
 	if (!Menu::bWasInitialized)
 	{
-		ImGuiIO& io = ImGui::GetIO();
+		ImGuiIO& io = ImGui::GetIO(); (void)io;
 		io.DeltaTime = 1.0f / 60.0f;
 		D3DDEVICE_CREATION_PARAMETERS d3dcp{ 0 };
 		pDevice->GetCreationParameters(&d3dcp);
@@ -153,13 +155,15 @@ DWORD D3D9Hook::endSceneCallback(LPDIRECT3DDEVICE9 pDevice)
 
 	ImGui_ImplDX9_NewFrame();
 	//draw menu here
-	ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiSetCond_FirstUseEver);
-	ImGui::Begin("cao!");
+
 	ImGui::Text("Hello World!");
 
-	ImGui::End();
+	ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiCond_FirstUseEver); // Normally user code doesn't need/want to call this because positions are saved in .ini file anyway. Here we just want to make the demo initial state a bit more friendly!
+	ImGui::ShowDemoWindow();
 
+	ImGui::EndFrame();
 	ImGui::Render();
+	ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
 		
 	return origEndScene(pDevice);
 }

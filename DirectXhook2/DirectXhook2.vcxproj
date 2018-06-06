@@ -150,6 +150,7 @@
   <ItemGroup>
     <ClCompile Include="D:\Game Hack Tools\CODE\imgui-master\examples\directx9_example\imgui_impl_dx9.cpp" />
     <ClCompile Include="D:\Game Hack Tools\CODE\imgui-master\imgui.cpp" />
+    <ClCompile Include="D:\Game Hack Tools\CODE\imgui-master\imgui_demo.cpp" />
     <ClCompile Include="D:\Game Hack Tools\CODE\imgui-master\imgui_draw.cpp" />
     <ClCompile Include="DebugConsole.cpp" />
     <ClCompile Include="dllmain.cpp" />
