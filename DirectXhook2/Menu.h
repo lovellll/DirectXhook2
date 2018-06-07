@@ -57,5 +57,6 @@ private:
 
 	static LRESULT __stdcall WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
+	static bool isMemuOpen;
 };
 

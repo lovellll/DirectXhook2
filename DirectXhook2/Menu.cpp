@@ -6,6 +6,8 @@ Menu* Menu::instance = nullptr;
 bool Menu::bWasInitialized = false;
 bool Menu::bImguiWasInitialized = false;
 
+bool Menu::isMemuOpen = false;
+
 void Menu::initialize(LPDIRECT3DDEVICE9 pDevice)
 {
 	D3DDEVICE_CREATION_PARAMETERS params;
@@ -33,8 +35,19 @@ void Menu::imguiInitialize(LPDIRECT3DDEVICE9 pDevice)
 void Menu::renderFrame()
 {
 	ImGui_ImplDX9_NewFrame();
-	
-	drawMenu();
+
+	if (GetKeyState(VK_INSERT) == true)
+	{
+		ImGui::GetIO().MouseDrawCursor = true;
+		isMemuOpen = true;
+		drawMenu();
+	}
+	else
+	{
+		isMemuOpen = false;
+		ImGui::GetIO().MouseDrawCursor = false;
+		ShowCursor(false);
+	}
 
 	ImGui::EndFrame();
 	ImGui::Render();
@@ -50,15 +63,16 @@ void Menu::drawMenu()
 	ImGui::Text("Hello from another window!");
 	if (ImGui::Button("Show text"))
 		g_Options.text_enabled = !g_Options.text_enabled;
+	/*
 	if (ImGui::Button("Light!"))
 		g_Options.light_enabled = !g_Options.light_enabled;
 	if (ImGui::Button("Change Texture"))
 		g_Options.texture_enabled = !g_Options.texture_enabled;
-
+	*/
 	ImGui::End();
 
-	//ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiCond_FirstUseEver); // Normally user code doesn't need/want to call this because positions are saved in .ini file anyway. Here we just want to make the demo initial state a bit more friendly!
-	//ImGui::ShowDemoWindow();
+	ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiCond_FirstUseEver); // Normally user code doesn't need/want to call this because positions are saved in .ini file anyway. Here we just want to make the demo initial state a bit more friendly!
+	ImGui::ShowDemoWindow();
 }
 
 LRESULT __stdcall Menu::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)

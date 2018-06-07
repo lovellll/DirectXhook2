@@ -59,8 +59,6 @@ public:
 	DWORD resetCallback(LPDIRECT3DDEVICE9 pDevice, D3DPRESENT_PARAMETERS* pPresentationParameters);
 	HRESULT WINAPI drawIndexedPrimitiveCallback(LPDIRECT3DDEVICE9 pDevice, D3DPRIMITIVETYPE PrimType, INT BaseVertexIndex, UINT MinVertexIndex, UINT NumVertices, UINT startIndex, UINT primCount);
 
-	LPDIRECT3DTEXTURE9 addTexture(std::wstring imagePath);
-
 	void drawText(int x, int y, D3DCOLOR color, const char * text, ...);
 
 private:
@@ -83,11 +81,5 @@ private:
 	void placeHooks(LPDIRECT3DDEVICE9 pDevic);
 	void onLostDevice();
 
-	//-----------------------those are testing DX hooks---------------//
-	void lighthackDirectionalSwitch(LPDIRECT3DDEVICE9 pDevice, bool isEnable);
-	void lightHackAmbientSwitch(LPDIRECT3DDEVICE9 pDevice, bool isEnable);
-	//-----------------------those are testing DX hooks---------------//
-
-	static LPDIRECT3DTEXTURE9 m_texture;
 	static LPD3DXFONT		  m_font;
 };

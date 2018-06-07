@@ -89,9 +89,11 @@ void inject(HANDLE hProcess)
 {
 	//wirte dll name to target memory
 	wchar_t* dllName = L"DirectXhook2.dll";
-	int namelen = wcslen(dllName) + 1;
+	wchar_t fullpath[MAX_PATH] = { 0 };
+	_wfullpath(fullpath, dllName, MAX_PATH);
+	int namelen = wcslen(fullpath) + 1;
 	LPVOID remoteStringAdr = VirtualAllocEx(hProcess, NULL, namelen * 2, MEM_COMMIT, PAGE_EXECUTE);
-	WriteProcessMemory(hProcess, remoteStringAdr, dllName, namelen * 2, NULL);
+	WriteProcessMemory(hProcess, remoteStringAdr, fullpath, namelen * 2, NULL);
 
 	//get the address of LoadLibraryW()
 	HMODULE k32 = GetModuleHandleA("kernel32.dll");
@@ -107,7 +109,7 @@ void inject(HANDLE hProcess)
 
 int main()
 {
-	wchar_t* binName = L"Chapter8_Direct3DApplication.exe";
+	wchar_t* binName = L"csgo.exe";
 	DWORD procPID = NULL;
 	do {
 		procPID = getProcPID(binName);

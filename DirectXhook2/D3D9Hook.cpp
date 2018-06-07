@@ -16,13 +16,11 @@ bool D3D9Hook::hookReadyPre = false;
 bool D3D9Hook::hookReady = false;
 
 DWORD D3D9Hook::my_endSceneAddress = NULL;
-
 _endScene D3D9Hook::initialOrigEndScene = nullptr;
 _endScene D3D9Hook::origEndScene = nullptr;
 _reset D3D9Hook::origReset = nullptr;
 _drawIndexedPrimitive D3D9Hook::origDrawIndexedPrimitive = nullptr;
 
-LPDIRECT3DTEXTURE9 D3D9Hook::m_texture = nullptr;
 LPD3DXFONT		  D3D9Hook::m_font = nullptr;
 
 void D3D9Hook::initialize()
@@ -108,7 +106,6 @@ DWORD D3D9Hook::initHookCallback(LPDIRECT3DDEVICE9 pDevice)
 	Detour_initialEndScene->UnHook();
 	delete Detour_initialEndScene;
 	//-----------------Initialize textures, fonts, etc...-----------------------------//
-
 	//-----------------Initialize textures, fonts, etc...-----------------------------//
 	this->placeHooks(pDevice);
 	//D3D9Hook::hookReadyPre = true;
@@ -118,7 +115,6 @@ DWORD D3D9Hook::initHookCallback(LPDIRECT3DDEVICE9 pDevice)
 void D3D9Hook::placeHooks(LPDIRECT3DDEVICE9 pDevice)
 {
 	//can place your hooks here
-	//D3D9Hook::gameDevice is the class
 	//----------------------endScenehook-------------------------//
 	VTableSwap_placeHooks = new PLH::VTableSwap;
 	VTableSwap_placeHooks->SetupHook((BYTE*)gameDevice, 42, (BYTE*)&endScenehk);
@@ -127,7 +123,7 @@ void D3D9Hook::placeHooks(LPDIRECT3DDEVICE9 pDevice)
 	//----------------------endScenehook-------------------------//
 	//----------------------other hooks--------------------------//
 	//origReset = VTableSwap_placeHooks->HookAdditional<_reset>(16, (BYTE*)&resethk);
-	origDrawIndexedPrimitive = VTableSwap_placeHooks->HookAdditional<_drawIndexedPrimitive>(82, (BYTE*)&drawIndexedPrimitivehk);
+	//origDrawIndexedPrimitive = VTableSwap_placeHooks->HookAdditional<_drawIndexedPrimitive>(82, (BYTE*)&drawIndexedPrimitivehk);
 	//----------------------other hooks--------------------------//
 	//----------------------hook WndProc-------------------------//
 	Menu::getInstance()->initialize(pDevice);
@@ -142,10 +138,6 @@ DWORD D3D9Hook::endSceneCallback(LPDIRECT3DDEVICE9 pDevice)
 	//drawText
 	if (g_Options.text_enabled)
 		drawText(60, 60, D3DCOLOR_ARGB(255, 0, 255, 0), "TEXT");
-
-	//light hack
-	lighthackDirectionalSwitch(pDevice, g_Options.light_enabled);
-	lightHackAmbientSwitch(pDevice, g_Options.light_enabled);
 
 	//imgui menu
 	Menu::getInstance()->Menu::imguiInitialize(pDevice);
@@ -188,32 +180,11 @@ HRESULT WINAPI D3D9Hook::drawIndexedPrimitiveCallback(LPDIRECT3DDEVICE9 pDevice,
 	}
 	*/
 	//----------------------------close Z-buffing---------------------------//
-	//----------------------------change texture---------------------------//
-	if (g_Options.texture_enabled)
-	{
-		if (!m_texture)
-			m_texture = this->addTexture(L"red.png");
-		else
-			pDevice->SetTexture(0, m_texture);
-	}
-	//----------------------------change texture---------------------------//
 	return origDrawIndexedPrimitive(pDevice, PrimType, BaseVertexIndex, MinVertexIndex, NumVertices, startIndex, primCount);
-}
-
-LPDIRECT3DTEXTURE9 D3D9Hook::addTexture(std::wstring imagePath)
-{
-	LPDIRECT3DTEXTURE9 texture;
-	if(D3DXCreateTextureFromFile(this->gameDevice, imagePath.c_str(), &texture) < 0)
-		return NULL;
-	return texture;
 }
 
 void D3D9Hook::drawText(int x, int y, D3DCOLOR color, const char *text, ...)
 {
-	//DWORD oldColorSettings;
-	//gameDevice->GetRenderState(D3DRS_COLORWRITEENABLE, &oldColorSettings);
-	//gameDevice->SetRenderState(D3DRS_COLORWRITEENABLE, 0xffffffff);
-
 	if (!m_font) 
 		D3DXCreateFontA(gameDevice, 16, 0, FW_BOLD, 0, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, ANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Arial", &m_font);
 	RECT rect;
@@ -236,37 +207,6 @@ void D3D9Hook::drawText(int x, int y, D3DCOLOR color, const char *text, ...)
 		rect.top--;
 		this->m_font->DrawTextA(NULL, buf, -1, &rect, 0, color);
 	}
-
-	//gameDevice->SetRenderState(D3DRS_COLORWRITEENABLE, oldColorSettings);
-}
-
-void D3D9Hook::lighthackDirectionalSwitch(LPDIRECT3DDEVICE9 pDevice, bool isEnable)
-{
-	static DWORD lightIndex = 0;
-	if (isEnable)
-	{
-		D3DLIGHT9 light;
-		ZeroMemory(&light, sizeof(light));
-		light.Type = D3DLIGHT_DIRECTIONAL;
-		light.Diffuse = D3DXCOLOR(0.5f, 0.5f, 0.5f, 1.0f);
-		light.Direction = D3DXVECTOR3(-1.0f, -0.5f, -1.0f);
-
-		pDevice->SetLight(lightIndex, &light);
-		pDevice->LightEnable(lightIndex, true);
-	}
-	else
-	{
-		pDevice->LightEnable(lightIndex, false);
-	}
-	
-}
-
-void D3D9Hook::lightHackAmbientSwitch(LPDIRECT3DDEVICE9 pDevice, bool isEnable)
-{
-	if (isEnable)
-		pDevice->SetRenderState(D3DRS_AMBIENT, D3DCOLOR_XRGB(100, 100, 100));
-	else
-		pDevice->SetRenderState(D3DRS_AMBIENT, D3DCOLOR_XRGB(20, 20, 20));
 }
 
 void D3D9Hook::onLostDevice(){}

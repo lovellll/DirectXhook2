@@ -40,6 +40,12 @@
     <Filter Include="头文件\menuconfig">
       <UniqueIdentifier>{58b3314a-ddc6-4ffb-a60e-af3c85836079}</UniqueIdentifier>
     </Filter>
+    <Filter Include="头文件\SDK">
+      <UniqueIdentifier>{c3ae36ca-1769-4981-bc58-06ad4798b2b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\SDK">
+      <UniqueIdentifier>{275d7e93-a4ff-4b7d-8220-2385c27122f7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="D3D9Hook.cpp">
@@ -80,6 +86,12 @@
     </ClCompile>
     <ClCompile Include="Options.cpp">
       <Filter>源文件\menuconfig</Filter>
+    </ClCompile>
+    <ClCompile Include="SDK.cpp">
+      <Filter>源文件\SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils.cpp">
+      <Filter>源文件\Utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -125,5 +137,19 @@
     <ClInclude Include="Options.h">
       <Filter>头文件\menuconfig</Filter>
     </ClInclude>
+    <ClInclude Include="SDK.h">
+      <Filter>头文件\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils.h">
+      <Filter>头文件\Utils</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="DirectXhook2.rc">
+      <Filter>资源文件</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>
